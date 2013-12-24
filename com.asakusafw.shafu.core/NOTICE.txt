@@ -1,0 +1,12 @@
+Shafu Core Plug-in.
+Copyright 2013 Asakusa Framework Development Team
+
+This product includes following components:
+* Gradle Tooling API (http://www.gradle.org/)
+* SLF4J (http://www.slf4j.org/)
+* Apache HttpComponents (http://hc.apache.org/)
+* Commons Compress (http://commons.apache.org/proper/commons-compress/)
+* Commons Logging (http://commons.apache.org/proper/commons-logging/)
+* Commons Codec (http://commons.apache.org/proper/commons-codec/)
+
+Each including software license files are on "lib/*/".

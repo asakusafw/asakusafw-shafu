@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="gradleContextEnhancers" name="%extension.gradleContextEnhancers" schema="schema/gradleContextEnhancers.exsd"/>
+   <extension-point id="httpCredentials" name="HTTP Credentials for Shafu" schema="schema/httpCredentials.exsd"/>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.asakusafw.shafu.core.singleProjectSelected">
+         <with
+               variable="selection">
+            <count
+                  value="1">
+            </count>
+            <iterate
+                  operator="or">
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+               </adapt></iterate>
+         </with>
+      </definition>
+   </extension>
+</plugin>

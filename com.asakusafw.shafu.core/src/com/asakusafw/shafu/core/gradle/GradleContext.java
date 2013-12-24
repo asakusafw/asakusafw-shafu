@@ -1,0 +1,265 @@
+/**
+ * Copyright 2013 Asakusa Framework Team.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.asakusafw.shafu.core.gradle;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.eclipse.core.resources.IWorkspaceRunnable;
+
+/**
+ * Represents a Gradle context.
+ */
+public final class GradleContext {
+
+    /**
+     * The default file name of Gradle build script.
+     */
+    public static final String DEFAULT_BUILD_SCRIPT_NAME = "build.gradle"; //$NON-NLS-1$
+
+    final File projectDirectory;
+
+    volatile URI gradleDistributionOrNull;
+
+    volatile File gradleUserHomeDirOrNull;
+
+    volatile File javaHomeDirOrNull;
+
+    volatile InputStream standardInputOrNull;
+
+    volatile OutputStream standardOutputOrNull;
+
+    volatile OutputStream standardErrorOutputOrNull;
+
+    volatile List<String> jvmArguments = new ArrayList<String>();
+
+    volatile List<String> gradleArguments = new ArrayList<String>();
+
+    final List<IWorkspaceRunnable> disposeActions = new ArrayList<IWorkspaceRunnable>();
+
+    /**
+     * Creates a new instance.
+     * @param projectDirectory the target project directory
+     */
+    public GradleContext(File projectDirectory) {
+        this.projectDirectory = projectDirectory;
+    }
+
+    /**
+     * Returns the target project directory.
+     * @return the project directory
+     */
+    public File getProjectDirectory() {
+        return projectDirectory;
+    }
+
+    /**
+     * Returns the target distribution.
+     * @return the target distribution, or {@code null} if the target distribution is not specified
+     */
+    public URI getGradleDistribution() {
+        return gradleDistributionOrNull;
+    }
+
+    /**
+     * Sets the Gradle distribution location.
+     * @param identifier the target distribution
+     */
+    public void setGradleDistribution(URI identifier) {
+        this.gradleDistributionOrNull = identifier;
+    }
+
+    /**
+     * Returns the Gradle user home (for detecting {@code .gradle}).
+     * @return the Gradle user home, or {@code null} if the Gradle uses {@code user.home}
+     */
+    public File getGradleUserHomeDir() {
+        return gradleUserHomeDirOrNull;
+    }
+
+    /**
+     * Sets the Gradle user home (for detecting {@code .gradle}).
+     * @param directory the target directory
+     */
+    public void setGradleUserHomeDir(File directory) {
+        this.gradleUserHomeDirOrNull = directory;
+    }
+
+    /**
+     * Returns the Java installation directory.
+     * @return the Java installation directory, or {@code null} if the Gradle uses {@code java.home}
+     */
+    public File getJavaHomeDir() {
+        return javaHomeDirOrNull;
+    }
+
+    /**
+     * Sets the Java installation directory.
+     * @param directory the target directory
+     */
+    public void setJavaHomeDir(File directory) {
+        this.javaHomeDirOrNull = directory;
+    }
+
+    /**
+     * Returns the Java VM arguments.
+     * The result list is not modifiable.
+     * @return the Java VM arguments
+     */
+    public List<String> getJvmArguments() {
+        return Collections.unmodifiableList(jvmArguments);
+    }
+
+    /**
+     * Sets the Java VM arguments.
+     * @param arguments the Java VM arguments
+     */
+    public void setJvmArguments(List<String> arguments) {
+        this.jvmArguments = new ArrayList<String>(arguments);
+    }
+
+    /**
+     * Returns the Gradle arguments.
+     * The result list is not modifiable.
+     * @return the Gradle arguments
+     */
+    public List<String> getGradleArguments() {
+        return Collections.unmodifiableList(gradleArguments);
+    }
+
+    /**
+     * Sets the Gradle arguments.
+     * @param arguments the Gradle arguments
+     */
+    public void setGradleArguments(List<String> arguments) {
+        this.gradleArguments = new ArrayList<String>(arguments);
+    }
+
+    /**
+     * Sets the gradle distribution URI.
+     * @param uri the distribution URI
+     * @return this
+     */
+    public GradleContext withGradleDistribution(URI uri) {
+        this.gradleDistributionOrNull = uri;
+        return this;
+    }
+
+    /**
+     * Sets the gradle user home (default: {@code ~/.gradle}).
+     * @param directory the target directory
+     * @return this
+     */
+    public GradleContext withGradleUserHome(File directory) {
+        this.gradleUserHomeDirOrNull = directory;
+        return this;
+    }
+
+    /**
+     * Sets the Java installation directory.
+     * @param directory the target directory
+     * @return this
+     */
+    public GradleContext withJavaHome(File directory) {
+        this.javaHomeDirOrNull = directory;
+        return this;
+    }
+
+    /**
+     * Sets the standard input for build process.
+     * @param stream the target stream
+     * @return this
+     */
+    public GradleContext withStandardInput(InputStream stream) {
+        this.standardInputOrNull = stream;
+        return this;
+    }
+
+    /**
+     * Sets the standard output for build process.
+     * @param stream the target stream
+     * @return this
+     */
+    public GradleContext withStandardOutput(OutputStream stream) {
+        this.standardOutputOrNull = stream;
+        return this;
+    }
+
+    /**
+     * Sets the standard error output for build process.
+     * @param stream the target stream
+     * @return this
+     */
+    public GradleContext withStandardError(OutputStream stream) {
+        this.standardErrorOutputOrNull = stream;
+        return this;
+    }
+
+    /**
+     * Appends the Java VM arguments for build process.
+     * @param arguments the arguments
+     * @return this
+     */
+    public GradleContext withJvmArguments(List<String> arguments) {
+        this.jvmArguments.addAll(arguments);
+        return this;
+    }
+
+    /**
+     * Appends the Java VM arguments for build process.
+     * @param arguments the arguments
+     * @return this
+     */
+    public GradleContext withJvmArguments(String... arguments) {
+        Collections.addAll(this.jvmArguments, arguments);
+        return this;
+    }
+
+    /**
+     * Appends the build arguments for build process.
+     * @param arguments the arguments
+     * @return this
+     */
+    public GradleContext withGradleArguments(List<String> arguments) {
+        this.gradleArguments.addAll(arguments);
+        return this;
+    }
+
+    /**
+     * Appends the build arguments for build process.
+     * @param arguments the arguments
+     * @return this
+     */
+    public GradleContext withGradleArguments(String... arguments) {
+        Collections.addAll(this.gradleArguments, arguments);
+        return this;
+    }
+
+    /**
+     * Adds an action on dispose this context.
+     * @param action an action on dispose this context
+     * @return this
+     */
+    public GradleContext withDisposeAction(IWorkspaceRunnable action) {
+        this.disposeActions.add(action);
+        return this;
+    }
+}

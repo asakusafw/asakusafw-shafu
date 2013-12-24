@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: com.asakusafw.shafu.asakusafw;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Activator: com.asakusafw.shafu.internal.asakusafw.Activator
+Bundle-Vendor: %Bundle-Vendor
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.asakusafw.shafu.core,
+ com.asakusafw.shafu.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-Localization: OSGI-INF/l10n/bundle
+

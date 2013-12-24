@@ -1,0 +1,42 @@
+defaultTasks 'cleanLibraries', 'copyLibraries'
+
+def gradleVersion = '1.10'
+
+def classpathDestinationDir = file('lib')
+def sourceDestinationDir = file('libsrc')
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url 'http://repo.gradle.org/gradle/libs-releases-local'
+    }
+}
+
+configurations {
+    pluginClasspath
+    pluginSources
+}
+
+dependencies {
+    pluginClasspath "org.gradle:gradle-tooling-api:${gradleVersion}"
+    pluginClasspath "org.slf4j:slf4j-api:1.7.5"
+    pluginClasspath "org.slf4j:slf4j-simple:1.7.5"
+    pluginClasspath ("org.apache.commons:commons-compress:1.6") {
+        exclude module: 'xz'
+    }
+    pluginClasspath "org.apache.httpcomponents:httpclient:4.3.1"
+    
+    pluginSources "org.gradle:gradle-tooling-api:${gradleVersion}:sources"
+}
+
+task cleanLibraries << {
+    delete classpathDestinationDir
+}
+
+task copyLibraries << {
+    copy {
+        from files(configurations.pluginClasspath)
+        into classpathDestinationDir
+    }
+}
