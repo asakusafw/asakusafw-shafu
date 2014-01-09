@@ -137,7 +137,7 @@ public class AsakusaFrameworkTemplateProvider implements IProjectTemplateProvide
         String name = line.substring(0, index);
         String location = line.substring(index + 1);
         try {
-            URL url = new URL(location);
+            URL url = new URL(catalog, location);
             results.put(name, url);
         } catch (MalformedURLException e) {
             LogUtil.log(new Status(
