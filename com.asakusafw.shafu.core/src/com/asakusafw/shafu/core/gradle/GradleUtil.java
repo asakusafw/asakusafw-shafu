@@ -119,12 +119,12 @@ final class GradleUtil {
      */
     public static GradleConnector createConnector(GradleContext context) {
         GradleConnector connector = GradleConnector.newConnector();
-        connector.forProjectDirectory(context.getProjectDirectory());
+        connector.forProjectDirectory(context.getProjectDirectory().getAbsoluteFile());
         if (context.getGradleDistribution() != null) {
             connector.useDistribution(context.getGradleDistribution());
         }
         if (context.getGradleUserHomeDir() != null) {
-            connector.useGradleUserHomeDir(context.getGradleUserHomeDir());
+            connector.useGradleUserHomeDir(context.getGradleUserHomeDir().getAbsoluteFile());
         }
         return connector;
     }
@@ -139,7 +139,7 @@ final class GradleUtil {
             LongRunningOperation operation,
             GradleContext context) {
         if (context.getJavaHomeDir() != null) {
-            operation.setJavaHome(context.getJavaHomeDir());
+            operation.setJavaHome(context.getJavaHomeDir().getAbsoluteFile());
         }
         if (context.standardInputOrNull != null) {
             operation.setStandardInput(context.standardInputOrNull);
@@ -161,6 +161,7 @@ final class GradleUtil {
         });
         final Properties newProperties = new Properties();
         newProperties.putAll(properties);
+        newProperties.put("user.dir", context.getProjectDirectory().getAbsolutePath()); //$NON-NLS-1$
         newProperties.putAll(extractSystemProperties(context));
         OperationHandler<T> results = new OperationHandler<T>(operation, properties);
 
