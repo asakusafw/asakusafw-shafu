@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 
 import com.asakusafw.shafu.core.net.IHttpCredentials;
 import com.asakusafw.shafu.core.net.IHttpCredentialsProvider;
+import com.asakusafw.shafu.core.net.IHttpCredentialsProvider.Scope;
 import com.asakusafw.shafu.internal.core.Activator;
 import com.asakusafw.shafu.internal.core.LogUtil;
 
@@ -35,9 +36,10 @@ public class ShafuCredentialsProvider extends SystemDefaultCredentialsProvider {
     public Credentials getCredentials(AuthScope authscope) {
         String host = authscope.getHost();
         if (host != AuthScope.ANY_HOST) {
+            Scope scope = new Scope(authscope.getScheme(), host, authscope.getPort(), authscope.getRealm());
             for (IHttpCredentialsProvider provider : Activator.getExtensions().createHttpCredentialsProvider()) {
                 try {
-                    IHttpCredentials creds = provider.find(host);
+                    IHttpCredentials creds = provider.find(scope);
                     if (creds != null) {
                         return new UsernamePasswordCredentials(creds.getUserName(), creds.getPassword());
                     }
