@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 
+import com.asakusafw.shafu.core.extensions.ExtensionFilters;
 import com.asakusafw.shafu.ui.IProjectTemplateProvider;
 
 /**
@@ -57,6 +58,10 @@ public class ExtensionManager {
         List<IProjectTemplateProvider> results = new ArrayList<IProjectTemplateProvider>();
         final Map<String, URL> templates = new TreeMap<String, URL>();
         for (IExtension extension : point.getExtensions()) {
+            if (ExtensionFilters.accepts(extension) == false) {
+                LogUtil.debug("Extension is filtered: {0}", extension.getUniqueIdentifier()); //$NON-NLS-1$
+                continue;
+            }
             for (IConfigurationElement config : extension.getConfigurationElements()) {
                 String name = config.getName();
                 if (name.equals("template")) { //$NON-NLS-1$

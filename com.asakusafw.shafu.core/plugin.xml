@@ -2,7 +2,8 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="gradleContextEnhancers" name="%extension.gradleContextEnhancers" schema="schema/gradleContextEnhancers.exsd"/>
-   <extension-point id="httpCredentials" name="HTTP Credentials for Shafu" schema="schema/httpCredentials.exsd"/>
+   <extension-point id="httpCredentials" name="%extension.httpCredentials" schema="schema/httpCredentials.exsd"/>
+   <extension-point id="extensionFilters" name="%extension.extensionFilters" schema="schema/extensionFilters.exsd"/>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
    </extension>

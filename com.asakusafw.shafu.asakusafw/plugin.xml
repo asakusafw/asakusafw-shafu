@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         id="com.asakusafw.shafu.asakusafw.projectTemplates"
          point="com.asakusafw.shafu.ui.projectTemplates">
       <provider
             class="com.asakusafw.shafu.internal.asakusafw.gradle.AsakusaFrameworkTemplateProvider">
