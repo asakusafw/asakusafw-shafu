@@ -18,6 +18,7 @@ package com.asakusafw.shafu.internal.ui.wizards;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -294,6 +295,9 @@ public class SelectProjectTemplatePage extends WizardPage {
                 .align(SWT.BEGINNING, SWT.CENTER)
                 .create());
         buildCheck.setText(Messages.SelectProjectTemplatePage_buildCheckLabel);
+        buildCheck.setToolTipText(MessageFormat.format(
+                Messages.SelectProjectTemplatePage_buildCheckTooltip,
+                GradleBuildTask.TASK_BUILD_PROJECT));
 
         final IDialogSettings settings = Activator.getDialogSettings(getClass().getSimpleName());
         String defaultValue = settings.get(KEY_DIALOG_BUILD);
@@ -315,6 +319,7 @@ public class SelectProjectTemplatePage extends WizardPage {
     private void createConsoleButton(Composite pane) {
         this.openConsoleButton = new Button(pane, SWT.PUSH);
         openConsoleButton.setText(Messages.SelectProjectTemplatePage_openConsoleLabel);
+        openConsoleButton.setToolTipText(Messages.SelectProjectTemplatePage_openConsoleTooltip);
         openConsoleButton.setLayoutData(GridDataFactory.swtDefaults()
                 .align(SWT.END, SWT.END)
                 .create());

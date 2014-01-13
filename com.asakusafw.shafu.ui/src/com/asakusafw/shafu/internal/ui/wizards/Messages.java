@@ -48,6 +48,7 @@ final class Messages extends NLS {
     public static String ProjectInformationPage_errorProjectNameInconsistent;
     public static String ProjectInformationPage_title;
     public static String SelectGradleProjectsPage_buildCheckLabel;
+    public static String SelectGradleProjectsPage_buildCheckTooltip;
     public static String SelectGradleProjectsPage_description;
     public static String SelectGradleProjectsPage_errorCanceledToInspectProject;
     public static String SelectGradleProjectsPage_errorConsoleNotActive;
@@ -57,6 +58,7 @@ final class Messages extends NLS {
     public static String SelectGradleProjectsPage_gradleGroupLabel;
     public static String SelectGradleProjectsPage_infoProjectAlreadyImport;
     public static String SelectGradleProjectsPage_openConsoleLabel;
+    public static String SelectGradleProjectsPage_openConsoleTooltip;
     public static String SelectGradleProjectsPage_targetLabel;
     public static String SelectGradleProjectsPage_title;
     public static String SelectProjectDirectoryPage_description;
@@ -68,6 +70,7 @@ final class Messages extends NLS {
     public static String SelectProjectDirectoryPage_fieldLabel;
     public static String SelectProjectDirectoryPage_title;
     public static String SelectProjectTemplatePage_buildCheckLabel;
+    public static String SelectProjectTemplatePage_buildCheckTooltip;
     public static String SelectProjectTemplatePage_description;
     public static String SelectProjectTemplatePage_errorFileEmpty;
     public static String SelectProjectTemplatePage_errorFileMissing;
@@ -78,6 +81,7 @@ final class Messages extends NLS {
     public static String SelectProjectTemplatePage_gradleGroupLabel;
     public static String SelectProjectTemplatePage_monitorExtractTemplate;
     public static String SelectProjectTemplatePage_openConsoleLabel;
+    public static String SelectProjectTemplatePage_openConsoleTooltip;
     public static String SelectProjectTemplatePage_openFileButton;
     public static String SelectProjectTemplatePage_title;
     public static String SelectProjectTemplatePage_urlNoTemplateMessage;

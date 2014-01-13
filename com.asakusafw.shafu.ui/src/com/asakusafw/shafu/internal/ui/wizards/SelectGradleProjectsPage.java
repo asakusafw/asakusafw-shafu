@@ -16,6 +16,7 @@
 package com.asakusafw.shafu.internal.ui.wizards;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -160,6 +161,9 @@ public class SelectGradleProjectsPage extends WizardPage {
                 .align(SWT.BEGINNING, SWT.CENTER)
                 .create());
         buildCheck.setText(Messages.SelectGradleProjectsPage_buildCheckLabel);
+        buildCheck.setToolTipText(MessageFormat.format(
+                Messages.SelectGradleProjectsPage_buildCheckTooltip,
+                GradleBuildTask.TASK_BUILD_PROJECT));
 
         final IDialogSettings settings = Activator.getDialogSettings(getClass().getSimpleName());
         String defaultValue = settings.get(KEY_DIALOG_BUILD);
@@ -181,6 +185,7 @@ public class SelectGradleProjectsPage extends WizardPage {
     private void createConsoleButton(Composite pane) {
         this.openConsoleButton = new Button(pane, SWT.PUSH);
         openConsoleButton.setText(Messages.SelectGradleProjectsPage_openConsoleLabel);
+        openConsoleButton.setToolTipText(Messages.SelectGradleProjectsPage_openConsoleTooltip);
         openConsoleButton.setLayoutData(GridDataFactory.swtDefaults()
                 .align(SWT.END, SWT.END)
                 .create());
