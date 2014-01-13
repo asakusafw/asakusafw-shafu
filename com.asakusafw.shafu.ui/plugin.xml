@@ -29,7 +29,13 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+      <category
+            description="%command.category.description"
+            id="com.asakusafw.shafu.ui"
+            name="%command.category.name">
+      </category>
       <command
+            categoryId="com.asakusafw.shafu.ui"
             id="com.asakusafw.shafu.ui.buildProject"
             name="%command.buildProject.name">
          <commandParameter
