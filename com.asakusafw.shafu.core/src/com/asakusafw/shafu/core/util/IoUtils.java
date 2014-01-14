@@ -86,6 +86,10 @@ public final class IoUtils {
                         Messages.IoUtils_errorFailedToCreateDirectory,
                         dst));
             }
+            for (File srcChild : src.listFiles()) {
+                File dstChild = new File(dst, srcChild.getName());
+                copy(srcChild, dstChild);
+            }
         } else {
             OutputStream output = new FileOutputStream(dst);
             try {
@@ -97,6 +101,9 @@ public final class IoUtils {
                 }
             } finally {
                 output.close();
+            }
+            if (src.canExecute()) {
+                dst.setExecutable(true, false);
             }
         }
     }
