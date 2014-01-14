@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Asakusa Framework Team.
+ * Copyright 2014 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,14 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import com.asakusafw.shafu.internal.core.Activator;
 import com.asakusafw.shafu.internal.core.LogUtil;
 
 /**
@@ -80,31 +82,27 @@ public final class IoUtils {
      * @throws IOException if the operation was failed
      */
     public static void copy(File src, File dst) throws IOException {
-        if (src.isDirectory()) {
-            if (dst.mkdirs() == false && dst.isDirectory() == false) {
-                throw new IOException(MessageFormat.format(
-                        Messages.IoUtils_errorFailedToCreateDirectory,
-                        dst));
-            }
-            for (File srcChild : src.listFiles()) {
-                File dstChild = new File(dst, srcChild.getName());
-                copy(srcChild, dstChild);
-            }
-        } else {
-            OutputStream output = new FileOutputStream(dst);
-            try {
-                InputStream input = new FileInputStream(src);
-                try {
-                    IOUtils.copy(input, output);
-                } finally {
-                    input.close();
-                }
-            } finally {
-                output.close();
-            }
-            if (src.canExecute()) {
-                dst.setExecutable(true, false);
-            }
+        copy(new NullProgressMonitor(), src, dst);
+    }
+
+    /**
+     * Copies a file or folder.
+     * @param monitor the current progress monitor
+     * @param src the source file or folder
+     * @param dst the target file or folder
+     * @throws IOException if the operation was failed
+     */
+    public static void copy(IProgressMonitor monitor, File src, File dst) throws IOException {
+        IFileSystem fs = EFS.getLocalFileSystem();
+        IFileStore from = fs.fromLocalFile(src);
+        IFileStore to = fs.fromLocalFile(dst);
+        try {
+            from.copy(to, EFS.OVERWRITE, monitor);
+        } catch (CoreException e) {
+            LogUtil.log(e.getStatus());
+            throw new IOException(MessageFormat.format(
+                    Messages.IoUtils_errorFailedToCopyFile,
+                    src, dst));
         }
     }
 
@@ -115,52 +113,89 @@ public final class IoUtils {
      * @throws IOException if the operation was failed
      */
     public static void move(File src, File dst) throws IOException {
-        if (src.renameTo(dst)) {
-            return;
+        move(new NullProgressMonitor(), src, dst);
+    }
+
+    /**
+     * Moves a file or folder.
+     * @param monitor the current progress monitor
+     * @param src the source file or folder
+     * @param dst the target file or folder
+     * @throws IOException if the operation was failed
+     */
+    public static void move(IProgressMonitor monitor, File src, File dst) throws IOException {
+        IFileSystem fs = EFS.getLocalFileSystem();
+        IFileStore from = fs.fromLocalFile(src);
+        IFileStore to = fs.fromLocalFile(dst);
+        try {
+            from.move(to, EFS.OVERWRITE, monitor);
+        } catch (CoreException e) {
+            LogUtil.log(e.getStatus());
+            throw new IOException(MessageFormat.format(
+                    Messages.IoUtils_errorFailedToMoveFile,
+                    src, dst));
         }
-        copy(src, dst);
-        delete(src);
     }
 
     /**
      * Deletes a file or folder.
+     * If the target file does not exist, this operation has no effects.
      * @param file the target file or folder
      * @throws IOException if the operation was failed
      */
     public static void delete(File file) throws IOException {
-        boolean result = delete0(file);
+        delete(new NullProgressMonitor(), file);
+    }
+
+    /**
+     * Deletes a file or folder.
+     * If the target file does not exist, this operation has no effects.
+     * @param monitor the current progress monitor
+     * @param file the target file or folder
+     * @throws IOException if the operation was failed
+     */
+    public static void delete(IProgressMonitor monitor, File file) throws IOException {
+        boolean result = delete0(monitor, file);
         if (result == false) {
             throw new IOException(MessageFormat.format(
-                    Messages.IoUtils_errorFailedToDeleteDirectory,
+                    Messages.IoUtils_errorFailedToDeleteFile,
                     file));
         }
     }
 
     /**
      * Deletes a file or folder quietly.
+     * If the target file does not exist, this operation has no effects.
      * @param file the target file or folder
      */
     public static void deleteQuietly(File file) {
-        boolean result = delete0(file);
-        if (result == false) {
-            LogUtil.log(new Status(
-                    IStatus.WARNING,
-                    Activator.PLUGIN_ID,
-                    MessageFormat.format(
-                            Messages.IoUtils_errorFailedToDeleteDirectory,
-                            file)));
-        }
+        deleteQuietly(new NullProgressMonitor(), file);
     }
 
-    private static boolean delete0(File file) {
-        boolean delete = true;
-        if (file.isDirectory()) {
-            for (File child : file.listFiles()) {
-                delete &= delete0(child);
-            }
+    /**
+     * Deletes a file or folder quietly.
+     * @param monitor the current progress monitor
+     * If the target file does not exist, this operation has no effects.
+     * @param file the target file or folder
+     */
+    public static void deleteQuietly(IProgressMonitor monitor, File file) {
+        delete0(monitor, file);
+    }
+
+    private static boolean delete0(IProgressMonitor monitor, File file) {
+        if (file.exists() == false) {
+            monitor.done();
+            return true;
         }
-        delete &= file.delete();
-        return delete;
+        IFileSystem fs = EFS.getLocalFileSystem();
+        IFileStore store = fs.fromLocalFile(file);
+        try {
+            store.delete(EFS.ATTRIBUTE_SYMLINK, monitor);
+            return true;
+        } catch (CoreException e) {
+            LogUtil.log(e.getStatus());
+            return false;
+        }
     }
 
     /**

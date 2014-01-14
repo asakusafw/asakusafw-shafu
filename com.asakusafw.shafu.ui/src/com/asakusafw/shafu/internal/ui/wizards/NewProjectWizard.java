@@ -244,21 +244,15 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private void copyContents(SubMonitor monitor, File from, File to) throws CoreException {
         monitor.beginTask(Messages.NewProjectWizard_monitorCopyContents, 100);
-        to.mkdirs();
-        for (File src : from.listFiles()) {
-            File dst = new File(to, src.getName());
-            try {
-                IoUtils.move(src, dst);
-            } catch (IOException e) {
-                throw new CoreException(new Status(
-                        IStatus.ERROR,
-                        Activator.PLUGIN_ID,
-                        MessageFormat.format(
-                                Messages.NewProjectWizard_errorProjectFailedToCopyContent,
-                                to)));
-            }
-            monitor.worked(5);
-            monitor.setWorkRemaining(100);
+        try {
+            IoUtils.move(monitor.newChild(100), from, to);
+        } catch (IOException e) {
+            throw new CoreException(new Status(
+                    IStatus.ERROR,
+                    Activator.PLUGIN_ID,
+                    MessageFormat.format(
+                            Messages.NewProjectWizard_errorProjectFailedToCopyContent,
+                            to)));
         }
     }
 

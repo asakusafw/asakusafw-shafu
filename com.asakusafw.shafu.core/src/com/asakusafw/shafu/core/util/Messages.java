@@ -19,10 +19,12 @@ import org.eclipse.osgi.util.NLS;
 
 final class Messages extends NLS {
     private static final String BUNDLE_NAME = "com.asakusafw.shafu.core.util.messages"; //$NON-NLS-1$
+    public static String IoUtils_errorFailedToCopyFile;
     public static String IoUtils_errorFailedToCreateDirectory;
     public static String IoUtils_errorFailedToCreateTemporaryDirectory;
-    public static String IoUtils_errorFailedToDeleteDirectory;
+    public static String IoUtils_errorFailedToDeleteFile;
     public static String IoUtils_errorFailedToDeleteTemporaryFile;
+    public static String IoUtils_errorFailedToMoveFile;
     public static String IoUtils_monitorExtractTarGz;
     public static String IoUtils_monitorExtractZip;
     static {
