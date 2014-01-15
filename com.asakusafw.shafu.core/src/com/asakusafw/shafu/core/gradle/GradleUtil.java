@@ -16,8 +16,17 @@
 package com.asakusafw.shafu.core.gradle;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -26,8 +35,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.gradle.tooling.GradleConnectionException;
@@ -36,7 +49,9 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ResultHandler;
+import org.osgi.framework.Bundle;
 
+import com.asakusafw.shafu.core.util.IoUtils;
 import com.asakusafw.shafu.core.util.StatusUtils;
 import com.asakusafw.shafu.internal.core.Activator;
 import com.asakusafw.shafu.internal.core.LogUtil;
@@ -46,9 +61,15 @@ import com.asakusafw.shafu.internal.core.LogUtil;
  */
 final class GradleUtil {
 
+    private static final IPath SCRIPT_BASE_PATH = Path.fromPortableString("scripts"); //$NON-NLS-1$
+
+    private static final IPath SCRIPT_PATH = SCRIPT_BASE_PATH.append("init.gradle"); //$NON-NLS-1$
+
     private static final String SYSTEM_PROPERTY_PREFIX = "-D"; //$NON-NLS-1$
 
     private static final char SYSTEM_PROPERTY_FIELD_SEPARATOR = '=';
+
+    private static final String KEY_CANCEL_FILE = "com.asakusafw.shafu.core.cancelFile"; //$NON-NLS-1$
 
     private GradleUtil() {
         return;
@@ -150,8 +171,6 @@ final class GradleUtil {
         if (context.standardErrorOutputOrNull != null) {
             operation.setStandardError(context.standardErrorOutputOrNull);
         }
-        operation.setJvmArguments(toArray(context.getJvmArguments()));
-        operation.withArguments(toArray(context.getGradleArguments()));
 
         Properties properties = AccessController.doPrivileged(new PrivilegedAction<Properties>() {
             @Override
@@ -159,21 +178,33 @@ final class GradleUtil {
                 return System.getProperties();
             }
         });
-        final Properties newProperties = new Properties();
-        newProperties.putAll(properties);
-        newProperties.put("user.dir", context.getProjectDirectory().getAbsolutePath()); //$NON-NLS-1$
-        newProperties.putAll(extractSystemProperties(context));
-        OperationHandler<T> results = new OperationHandler<T>(operation, properties);
 
-        // install modified properties
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            @Override
-            public Void run() {
-                System.setProperties(newProperties);
-                return null;
+        File cancelFile = prepareCancelFile(context);
+        boolean succeed = false;
+        try {
+            operation.setJvmArguments(toArray(context.getJvmArguments()));
+            operation.withArguments(toArray(context.getGradleArguments()));
+            final Properties newProperties = new Properties();
+            newProperties.putAll(properties);
+            newProperties.put("user.dir", context.getProjectDirectory().getAbsolutePath()); //$NON-NLS-1$
+            newProperties.putAll(extractSystemProperties(context));
+            OperationHandler<T> results = new OperationHandler<T>(operation, properties, cancelFile);
+
+            // install modified properties
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                @Override
+                public Void run() {
+                    System.setProperties(newProperties);
+                    return null;
+                }
+            });
+            succeed = true;
+            return results;
+        } finally {
+            if (succeed == false) {
+                IoUtils.deleteQuietly(cancelFile);
             }
-        });
-        return results;
+        }
     }
 
     private static Properties extractSystemProperties(GradleContext context) {
@@ -201,6 +232,74 @@ final class GradleUtil {
         return list.toArray(new String[list.size()]);
     }
 
+    private static File prepareCancelFile(GradleContext context) {
+        List<String> newArguments = new ArrayList<String>();
+        try {
+            IPath scriptPath = resolveBuiltinPath(Activator.getDefault().getBundle(), SCRIPT_PATH);
+            newArguments.add("--init-script"); //$NON-NLS-1$
+            newArguments.add(scriptPath.toFile().getAbsolutePath());
+
+            // pass -D... into Gradle args (not JVM args)
+            File cancelFile = File.createTempFile("gradle", ".tmp"); //$NON-NLS-1$ //$NON-NLS-2$
+            newArguments.add(String.format("-D%s=%s", KEY_CANCEL_FILE, cancelFile.getAbsolutePath())); //$NON-NLS-1$
+
+            newArguments.addAll(context.getGradleArguments());
+            context.setGradleArguments(newArguments);
+            return cancelFile;
+        } catch (IOException e) {
+            LogUtil.log(IStatus.WARNING, Messages.GradleUtil_errorFailedToCreateCancelMarker);
+        }
+        return null;
+    }
+
+    private static IPath resolveBuiltinPath(Bundle bundle, IPath relativePath) throws IOException {
+        assert relativePath != null;
+        URL entry = bundle.getEntry(relativePath.toPortableString());
+        if (entry == null) {
+            throw new FileNotFoundException(relativePath.toPortableString());
+        }
+        URL fileUrl = FileLocator.toFileURL(entry);
+        if (fileUrl.getProtocol().equals("file") == false) { //$NON-NLS-1$
+            throw new FileNotFoundException(fileUrl.toExternalForm());
+        }
+        // Test file exists
+        InputStream input = fileUrl.openStream();
+        input.close();
+        return toPath(fileUrl);
+    }
+
+    private static IPath toPath(URL url) throws IOException {
+        assert url != null;
+        assert url.getProtocol().equals("file"); //$NON-NLS-1$
+        try {
+            URI fileUri = url.toURI();
+            File file = new File(fileUri);
+            file = file.getAbsoluteFile().getCanonicalFile();
+            IPath path = Path.fromOSString(file.getAbsolutePath());
+            if (path.toFile().exists()) {
+                return path;
+            }
+            // continue...
+        }
+        catch (URISyntaxException ignore) {
+            // continue...
+        }
+
+        String filePath = url.getFile();
+        IPath path = Path.fromPortableString(filePath);
+        if (path.toFile().exists()) {
+            return path;
+        }
+
+        if (filePath.isEmpty() == false && filePath.startsWith("/")) { //$NON-NLS-1$
+            path = Path.fromPortableString(filePath.substring(1));
+            if (path.toFile().exists()) {
+                return path;
+            }
+        }
+        throw new FileNotFoundException(url.toExternalForm());
+    }
+
     public static class OperationHandler<T> implements ResultHandler<T>, Closeable {
 
         private final CountDownLatch latch = new CountDownLatch(1);
@@ -214,12 +313,18 @@ final class GradleUtil {
 
         final Properties systemProperties;
 
+        private final File cancelFile;
+
         /**
          * Creates a new instance.
          * @param operation the target operation
          * @param systemProperties the original system properties
+         * @param cancelFile cancel marker file
          */
-        public OperationHandler(LongRunningOperation operation, Properties systemProperties) {
+        public OperationHandler(
+                LongRunningOperation operation,
+                Properties systemProperties,
+                File cancelFile) {
             operation.addProgressListener(new ProgressListener() {
                 @Override
                 public void statusChanged(ProgressEvent event) {
@@ -227,6 +332,7 @@ final class GradleUtil {
                 }
             });
             this.systemProperties = systemProperties;
+            this.cancelFile = cancelFile;
         }
 
         public boolean await() throws InterruptedException {
@@ -266,13 +372,25 @@ final class GradleUtil {
          */
         @Override
         public void close() {
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                @Override
-                public Void run() {
-                    System.setProperties(systemProperties);
-                    return null;
+            try {
+                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                    @Override
+                    public Void run() {
+                        System.setProperties(systemProperties);
+                        return null;
+                    }
+                });
+            } finally {
+                if (cancelFile != null && cancelFile.exists()) {
+                    try {
+                        IoUtils.delete(cancelFile);
+                    } catch (IOException e) {
+                        LogUtil.log(IStatus.WARNING, MessageFormat.format(
+                                Messages.GradleUtil_errorFailedToDeleteCancelMarker,
+                                cancelFile));
+                    }
                 }
-            });
+            }
         }
     }
 }

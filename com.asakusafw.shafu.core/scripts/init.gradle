@@ -1,0 +1,30 @@
+def LOG = logger
+def KEY_CANCEL_FILE = 'com.asakusafw.shafu.core.cancelFile'
+def cancelFilePath = startParameter.systemPropertiesArgs.get(KEY_CANCEL_FILE)
+if (cancelFilePath == null) {
+    LOG.warn("Cancel file is not specified: -D${KEY_CANCEL_FILE}")
+} else {
+    def cancelFile = new File(cancelFilePath)
+    def cancelPollThread = new Thread() {
+        void run() {
+            LOG.info("Start watching cancel file: ${cancelFile}")
+            try {
+                while (cancelFile.exists()) {
+                    LOG.debug("Cancel file still exists: ${cancelFile}")
+                    Thread.sleep(1000)
+                }
+                if (Thread.currentThread().interrupted() == false) {
+                    LOG.error("Shutdown was requested.")
+                    System.exit(1)
+                }
+            } catch (InterruptedException e) {
+                LOG.debug("Finish watching cancel file: ${cancelFile}")
+            }
+        }
+    }
+    cancelPollThread.setDaemon(true)
+    cancelPollThread.start()
+    buildFinished {
+        cancelPollThread.interrupt()
+    }
+}
