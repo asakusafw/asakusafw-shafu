@@ -21,6 +21,11 @@ package com.asakusafw.shafu.internal.asakusafw.preferences;
 public final class ShafuAsakusaPreferenceConstants {
 
     /**
+     * The URL (prefix) of download site.
+     */
+    private static final String URL_DOWNLOAD_SITE = "http://www.asakusafw.com/download/gradle-plugin/"; //$NON-NLS-1$
+
+    /**
      * The preference key of catalog URL.
      */
     public static final String KEY_CATALOG_URL = "catalog"; //$NON-NLS-1$
@@ -28,8 +33,7 @@ public final class ShafuAsakusaPreferenceConstants {
     /**
      * The default value of catalog URL.
      */
-    public static final String DEFAULT_CATALOG_URL =
-            "http://www.asakusafw.com/download/gradle-plugin/template-catalog.txt"; //$NON-NLS-1$
+    public static final String DEFAULT_CATALOG_URL = URL_DOWNLOAD_SITE + "template-catalog-release.txt"; //$NON-NLS-1$
 
     private ShafuAsakusaPreferenceConstants() {
         return;
