@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Asakusa Framework Team.
+ * Copyright 2013-2014 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import com.asakusafw.shafu.internal.core.Activator;
 /**
  * Launches Gradle and build the target project.
  * @see GradleException
+ * @version 0.2.2
  */
 public class GradleBuildTask implements IRunnable {
 
@@ -42,6 +43,12 @@ public class GradleBuildTask implements IRunnable {
      * The task name of build project.
      */
     public static final String TASK_BUILD_PROJECT = "testClasses"; //$NON-NLS-1$
+
+    /**
+     * The task name of de-configure project for Eclipse.
+     * @since 0.2.2
+     */
+    public static final String TASK_DECONFIGURE_ECLIPSE = "cleanEclipse"; //$NON-NLS-1$
 
     /**
      * The task name of configure project for Eclipse.

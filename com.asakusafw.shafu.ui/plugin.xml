@@ -108,7 +108,7 @@
                   style="push">
                <parameter
                      name="taskNames"
-                     value="eclipse">
+                     value="cleanEclipse eclipse">
                </parameter>
             </command>
             <separator
