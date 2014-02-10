@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Asakusa Framework Team.
+ * Copyright 2013-2014 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ final class Messages extends NLS {
     public static String NewProjectWizard_monitorLoadDescription;
     public static String NewProjectWizard_monitorLoadProject;
     public static String NewProjectWizard_monitorMain;
+    public static String NewProjectWizard_selectEntryMessage;
+    public static String NewProjectWizard_selectEntryTitle;
     public static String NewProjectWizard_title;
     public static String ProjectInformationPage_description;
     public static String ProjectInformationPage_errorProjectNameInconsistent;

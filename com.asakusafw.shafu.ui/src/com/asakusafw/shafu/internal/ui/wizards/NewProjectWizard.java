@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Asakusa Framework Team.
+ * Copyright 2013-2014 Asakusa Framework Team.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -41,11 +43,16 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import com.asakusafw.shafu.core.gradle.GradleBuildTask;
@@ -223,14 +230,72 @@ public class NewProjectWizard extends Wizard implements INewWizard {
                     MessageFormat.format(
                             Messages.NewProjectWizard_errorTemplateInvalid,
                             GradleContext.DEFAULT_BUILD_SCRIPT_NAME)));
+        } else {
+            File result = selectProjectEntry(temporaryFolder, results);
+            if (result == null) {
+                throw new CoreException(Status.CANCEL_STATUS);
+            }
+            return result;
         }
-        return results.get(0);
+    }
+
+    private File selectProjectEntry(File temporaryFolder, List<File> results) {
+        assert results.isEmpty() == false;
+        if (results.size() == 1) {
+            return results.get(0).getParentFile();
+        }
+        final List<IPath> paths = new ArrayList<IPath>();
+        IPath base = Path.fromOSString(temporaryFolder.getAbsolutePath());
+        for (File file : results) {
+            IPath path = Path.fromOSString(file.getAbsolutePath());
+            paths.add(path.removeFirstSegments(base.segmentCount()));
+        }
+        Collections.sort(paths, new Comparator<IPath>() {
+            @Override
+            public int compare(IPath o1, IPath o2) {
+                return o1.toPortableString().compareToIgnoreCase(o2.toPortableString());
+            }
+        });
+        IPath selection = selectProjectEntryByDialog(paths);
+        if (selection == null) {
+            return null;
+        }
+        return base.append(selection).toFile().getParentFile();
+    }
+
+    private IPath selectProjectEntryByDialog(final List<IPath> paths) {
+        final AtomicReference<IPath> selectionResult = new AtomicReference<IPath>();
+        Activator.getDisplay().syncExec(new Runnable() {
+            @Override
+            public void run() {
+                ListDialog dialog = new ListDialog(getShell()) {
+                    @Override
+                    protected int getTableStyle() {
+                        return super.getTableStyle() | SWT.SINGLE;
+                    }
+                };
+                dialog.setTitle(Messages.NewProjectWizard_selectEntryTitle);
+                dialog.setMessage(Messages.NewProjectWizard_selectEntryMessage);
+                dialog.setInitialSelections(new Object[] { paths.get(0) });
+                dialog.setInput(paths);
+                dialog.setContentProvider(ArrayContentProvider.getInstance());
+                dialog.setLabelProvider(new LabelProvider());
+                if (dialog.open() != Window.OK) {
+                    return;
+                }
+                Object[] selected = dialog.getResult();
+                if (selected.length >= 1) {
+                    selectionResult.set((IPath) selected[0]);
+                }
+            }
+        });
+        return selectionResult.get();
     }
 
     private void detectProjectEntry0(SubMonitor monitor, File folder, List<File> results) {
         File file = new File(folder, GradleContext.DEFAULT_BUILD_SCRIPT_NAME);
         if (file.isFile()) {
-            results.add(folder);
+            results.add(file);
         } else {
             for (File child : folder.listFiles()) {
                 if (child.isDirectory()) {
