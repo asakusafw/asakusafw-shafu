@@ -36,6 +36,7 @@
       </category>
       <command
             categoryId="com.asakusafw.shafu.ui"
+            description="%command.buildProject.description"
             id="com.asakusafw.shafu.ui.buildProject"
             name="%command.buildProject.name">
          <commandParameter
@@ -57,7 +58,7 @@
          </class>
          <enabledWhen>
             <reference
-                  definitionId="com.asakusafw.shafu.core.singleProjectSelected">
+                  definitionId="com.asakusafw.shafu.core.singleResourceSelected">
             </reference>
          </enabledWhen>
       </handler>

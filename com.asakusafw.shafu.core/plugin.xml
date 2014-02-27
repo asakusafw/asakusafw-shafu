@@ -10,6 +10,29 @@
    <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
+            id="com.asakusafw.shafu.core.singleResourceSelected">
+         <or>
+            <with
+                  variable="selection">
+               <count
+                     value="1">
+               </count>
+               <iterate
+                     operator="or">
+                  <adapt
+                        type="org.eclipse.core.resources.IResource">
+                  </adapt>
+               </iterate>
+            </with>
+            <with
+                  variable="activeEditorInput">
+               <adapt
+                     type="org.eclipse.core.resources.IResource">
+               </adapt>
+            </with>
+         </or>
+      </definition>
+      <definition
             id="com.asakusafw.shafu.core.singleProjectSelected">
          <with
                variable="selection">

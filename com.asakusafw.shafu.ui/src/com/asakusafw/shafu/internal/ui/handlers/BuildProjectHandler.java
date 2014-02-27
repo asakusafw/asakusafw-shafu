@@ -25,6 +25,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.asakusafw.shafu.core.util.CommandLineUtil;
@@ -55,6 +56,9 @@ public class BuildProjectHandler extends AbstractHandler {
         }
         String commandLine = getTaskNames(event, project.getName());
         if (commandLine == null) {
+            return null;
+        }
+        if (PlatformUI.getWorkbench().saveAllEditors(true) == false) {
             return null;
         }
         List<String> tasks = CommandLineUtil.parseGradleTaskNames(commandLine);

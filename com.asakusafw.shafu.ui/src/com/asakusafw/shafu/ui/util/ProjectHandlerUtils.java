@@ -29,6 +29,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -47,8 +49,6 @@ public class ProjectHandlerUtils {
         RESOURCE_KIND = Collections.unmodifiableList(classes);
     }
 
-    private static final List<Class<IProject>> PROJECT_KIND = Collections.singletonList(IProject.class);
-
     /**
      * Obtains a project in current selection.
      * @param event current event object
@@ -57,15 +57,11 @@ public class ProjectHandlerUtils {
      * @throws IllegalArgumentException if the argument is null
      */
     public static IProject getTargetProject(ExecutionEvent event) throws ExecutionException {
-        if (event == null) {
-            throw new IllegalArgumentException("event is null"); //$NON-NLS-1$
-        }
-        ISelection s = HandlerUtil.getCurrentSelectionChecked(event);
-        if ((s instanceof IStructuredSelection) == false) {
+        IResource resource = getTargetResource(event);
+        if (resource == null) {
             return null;
         }
-        IStructuredSelection sel = (IStructuredSelection) s;
-        return adapt(sel.getFirstElement(), PROJECT_KIND);
+        return resource.getProject();
     }
 
     /**
@@ -79,12 +75,32 @@ public class ProjectHandlerUtils {
         if (event == null) {
             throw new IllegalArgumentException("event is null"); //$NON-NLS-1$
         }
-        ISelection s = HandlerUtil.getCurrentSelectionChecked(event);
-        if ((s instanceof IStructuredSelection) == false) {
+        IResource resource;
+        resource = getSelectedResource(event);
+        if (resource != null) {
+            return resource;
+        }
+        resource = getEditingResource(event);
+        return resource;
+    }
+
+    private static IResource getSelectedResource(ExecutionEvent event) {
+        ISelection selection = HandlerUtil.getCurrentSelection(event);
+        if (selection == null || selection.isEmpty()) {
+            return null;
+        } else if (selection instanceof IStructuredSelection) {
+            return adapt(((IStructuredSelection) selection).getFirstElement(), RESOURCE_KIND);
+        }
+        return null;
+    }
+
+    private static IResource getEditingResource(ExecutionEvent event) {
+        IWorkbenchPart part = HandlerUtil.getActivePart(event);
+        if (part == null || (part instanceof IEditorPart) == false) {
             return null;
         }
-        IStructuredSelection sel = (IStructuredSelection) s;
-        return adapt(sel.getFirstElement(), RESOURCE_KIND);
+        IEditorPart editor = (IEditorPart) part;
+        return adapt(editor.getEditorInput(), RESOURCE_KIND);
     }
 
     private static <T> T adapt(
