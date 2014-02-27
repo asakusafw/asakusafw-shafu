@@ -64,6 +64,15 @@
       </handler>
    </extension>
    <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.asakusafw.shafu.ui.buildProject"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+B">
+      </key>
+   </extension>
+   <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"

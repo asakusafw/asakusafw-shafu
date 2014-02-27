@@ -35,6 +35,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * Utilities for handling {@link IProject}s.
+ * @version 0.2.5
  */
 public class ProjectHandlerUtils {
 
