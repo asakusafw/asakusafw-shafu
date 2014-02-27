@@ -16,7 +16,6 @@
 package com.asakusafw.shafu.internal.ui.preferences;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,44 +27,42 @@ import com.asakusafw.shafu.internal.ui.LogUtil;
 
 /**
  * Represents a log level property value.
+ * @version 0.2.4
  */
 public enum GradleLogLevel implements GradleOption {
 
     /**
      * Quiet level.
      */
-    QUIET(Messages.GradleLogLevel_quietDescription, new String[] {
-            "--quiet", //$NON-NLS-1$
-    }),
+    QUIET(Messages.GradleLogLevel_quietDescription, "-q", "--quiet"), //$NON-NLS-1$ //$NON-NLS-2$
 
     /**
      * Normal level.
      */
-    LIFECYCLE(Messages.GradleLogLevel_lifecycleDescription),
+    LIFECYCLE(Messages.GradleLogLevel_lifecycleDescription, null, null),
 
     /**
      * Info level.
      */
-    INFO(Messages.GradleLogLevel_infoDescription, new String[] {
-            "--info", //$NON-NLS-1$
-    }),
+    INFO(Messages.GradleLogLevel_infoDescription, "-i", "--info"), //$NON-NLS-1$ //$NON-NLS-2$
 
     /**
      * Debug level.
      */
-    DEBUG(Messages.GradleLogLevel_debugDescription, new String[] {
-            "--debug", //$NON-NLS-1$
-    }),
+    DEBUG(Messages.GradleLogLevel_debugDescription, "-d", "--debug"), //$NON-NLS-1$ //$NON-NLS-2$
 
     ;
 
     private final String description;
 
-    private final List<String> arguments;
+    private final String optionName;
 
-    private GradleLogLevel(String description, String... arguments) {
+    private final String longOptionName;
+
+    private GradleLogLevel(String description, String optionName, String longOptionName) {
         this.description = description;
-        this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
+        this.optionName = optionName;
+        this.longOptionName = longOptionName;
     }
 
     @Override
@@ -76,6 +73,24 @@ public enum GradleLogLevel implements GradleOption {
     @Override
     public String getSymbol() {
         return this.name();
+    }
+
+    @Override
+    public String getOptionName() {
+        return optionName;
+    }
+
+    @Override
+    public String getLongOptionName() {
+        return longOptionName;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        if (getLongOptionName() == null) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(getLongOptionName());
     }
 
     /**
@@ -96,11 +111,6 @@ public enum GradleLogLevel implements GradleOption {
                             symbol)));
             return LIFECYCLE;
         }
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return arguments;
     }
 
     @Override

@@ -19,8 +19,11 @@ import static com.asakusafw.shafu.internal.ui.preferences.ShafuPreferenceConstan
 import static com.asakusafw.shafu.ui.util.PreferenceUtils.*;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -36,11 +39,13 @@ import com.asakusafw.shafu.internal.ui.consoles.ShafuConsoleManager;
 import com.asakusafw.shafu.internal.ui.dialogs.ConsoleDialog;
 import com.asakusafw.shafu.internal.ui.preferences.GradleLogLevel;
 import com.asakusafw.shafu.internal.ui.preferences.GradleNetworkMode;
+import com.asakusafw.shafu.internal.ui.preferences.GradleOption;
 import com.asakusafw.shafu.internal.ui.preferences.GradleStackTrace;
 import com.asakusafw.shafu.ui.consoles.ShafuConsole;
 
 /**
  * Core APIs of Shafu UI Plug-in.
+ * @version 0.2.4
  */
 public final class ShafuUi {
 
@@ -54,7 +59,18 @@ public final class ShafuUi {
      * @param tasks the target tasks
      */
     public static void scheduleTasks(IProject project, List<String> tasks) {
-        GradleContext configuration = ShafuUi.createContext(project.getLocation().toFile());
+        scheduleTasks(project, tasks, Collections.<String>emptyList());
+    }
+
+    /**
+     * Schedules the Gradle tasks.
+     * @param project the target project
+     * @param tasks the target tasks
+     * @param arguments the build arguments
+     * @since 0.2.4
+     */
+    public static void scheduleTasks(IProject project, List<String> tasks, List<String> arguments) {
+        GradleContext configuration = ShafuUi.createContext(project.getLocation().toFile(), arguments);
         ShafuConsole console = ShafuUi.getGlobalConsole(true);
         console.clearConsole();
         console.attachTo(configuration);
@@ -74,6 +90,10 @@ public final class ShafuUi {
      * @see GradleInspectTask
      */
     public static GradleContext createContext(File projectDirectory) {
+        return createContext(projectDirectory, Collections.<String>emptyList());
+    }
+
+    private static GradleContext createContext(File projectDirectory, List<String> arguments) {
         GradleContext context = new GradleContext(projectDirectory);
 
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
@@ -85,12 +105,20 @@ public final class ShafuUi {
         File gradleUserHome = decodeFile(prefs.getString(KEY_GRADLE_USER_HOME));
         File javaHome = decodeFile(prefs.getString(KEY_JAVA_HOME));
 
-        context.withGradleArguments(logLevel.getArguments());
-        context.withGradleArguments(stackTrace.getArguments());
-        context.withGradleArguments(networkMode.getArguments());
+        if (appearsIn(GradleLogLevel.values(), arguments) == false) {
+            context.withGradleArguments(logLevel.getArguments());
+        }
+        if (appearsIn(GradleStackTrace.values(), arguments) == false) {
+            context.withGradleArguments(stackTrace.getArguments());
+        }
+        if (appearsIn(GradleNetworkMode.values(), arguments) == false) {
+            context.withGradleArguments(networkMode.getArguments());
+        }
         for (Map.Entry<String, String> entry : projectProps.entrySet()) {
             context.withGradleArguments(String.format("-P%s=%s", entry.getKey(), entry.getValue())); //$NON-NLS-1$
         }
+        context.withGradleArguments(arguments);
+
         for (Map.Entry<String, String> entry : systemProps.entrySet()) {
             context.withJvmArguments(String.format("-D%s=%s", entry.getKey(), entry.getValue())); //$NON-NLS-1$
         }
@@ -98,6 +126,27 @@ public final class ShafuUi {
         context.setJavaHomeDir(javaHome);
 
         return context;
+    }
+
+    private static boolean appearsIn(GradleOption[] options, List<String> arguments) {
+        if (arguments.isEmpty()) {
+            return false;
+        }
+        Set<String> candidates = new HashSet<String>();
+        for (GradleOption option : options) {
+            if (option.getOptionName() != null) {
+                candidates.add(option.getOptionName());
+            }
+            if (option.getLongOptionName() != null) {
+                candidates.add(option.getLongOptionName());
+            }
+        }
+        for (String argument : arguments) {
+            if (candidates.contains(argument)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

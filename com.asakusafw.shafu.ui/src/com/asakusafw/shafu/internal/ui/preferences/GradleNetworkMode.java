@@ -16,7 +16,6 @@
 package com.asakusafw.shafu.internal.ui.preferences;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,29 +27,31 @@ import com.asakusafw.shafu.internal.ui.LogUtil;
 
 /**
  * Represents an off-line mode property value.
+ * @version 0.2.4
  */
 public enum GradleNetworkMode implements GradleOption {
 
     /**
      * On-line mode.
      */
-    ONLINE(Messages.GradleNetworkMode_onlineDescription),
+    ONLINE(Messages.GradleNetworkMode_onlineDescription, null, null),
 
     /**
      * Off-line mode.
      */
-    OFFLINE(Messages.GradleNetworkMode_offlineDescription, new String[] {
-            "--offline", //$NON-NLS-1$
-    }),
+    OFFLINE(Messages.GradleNetworkMode_offlineDescription, null, "--offline"), //$NON-NLS-1$
 
     ;
     private final String description;
 
-    private final List<String> arguments;
+    private final String optionName;
 
-    private GradleNetworkMode(String description, String... arguments) {
+    private final String longOptionName;
+
+    private GradleNetworkMode(String description, String optionName, String longOptionName) {
         this.description = description;
-        this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
+        this.optionName = optionName;
+        this.longOptionName = longOptionName;
     }
 
     @Override
@@ -61,6 +62,24 @@ public enum GradleNetworkMode implements GradleOption {
     @Override
     public String getSymbol() {
         return this.name();
+    }
+
+    @Override
+    public String getOptionName() {
+        return optionName;
+    }
+
+    @Override
+    public String getLongOptionName() {
+        return longOptionName;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        if (getLongOptionName() == null) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(getLongOptionName());
     }
 
     /**
@@ -81,11 +100,6 @@ public enum GradleNetworkMode implements GradleOption {
                             symbol)));
             return ONLINE;
         }
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return arguments;
     }
 
     @Override

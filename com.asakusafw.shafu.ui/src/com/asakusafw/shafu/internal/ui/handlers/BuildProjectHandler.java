@@ -15,7 +15,6 @@
  */
 package com.asakusafw.shafu.internal.ui.handlers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -27,12 +26,14 @@ import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.asakusafw.shafu.core.util.CommandLineUtil;
 import com.asakusafw.shafu.internal.ui.Activator;
 import com.asakusafw.shafu.ui.ShafuUi;
 import com.asakusafw.shafu.ui.util.ProjectHandlerUtils;
 
 /**
  * Handles build command.
+ * @version 0.2.4
  */
 public class BuildProjectHandler extends AbstractHandler {
 
@@ -46,16 +47,17 @@ public class BuildProjectHandler extends AbstractHandler {
         if (project == null) {
             return null;
         }
-        List<String> tasks = getTasks(event);
-        if (tasks == null) {
+        String commandLine = getTaskNames(event);
+        if (commandLine == null) {
             return null;
         }
-
-        ShafuUi.scheduleTasks(project, tasks);
+        List<String> tasks = CommandLineUtil.parseGradleTaskNames(commandLine);
+        List<String> arguments = CommandLineUtil.parseGradleBuildArguments(commandLine);
+        ShafuUi.scheduleTasks(project, tasks, arguments);
         return null;
     }
 
-    private List<String> getTasks(ExecutionEvent event) throws ExecutionException {
+    private String getTaskNames(ExecutionEvent event) throws ExecutionException {
         String taskNames = event.getParameter(PARAMETER_TASK_NAMES);
         if (taskNames == null) {
             String defaultTaskNames = loadDefaultTaskNames();
@@ -71,14 +73,7 @@ public class BuildProjectHandler extends AbstractHandler {
             taskNames = dialog.getValue();
             saveDefaultTaskNames(taskNames);
         }
-        List<String> tasks = new ArrayList<String>();
-        for (String field : taskNames.split("\\s+")) { //$NON-NLS-1$
-            String task = field.trim();
-            if (task.isEmpty() == false) {
-                tasks.add(task);
-            }
-        }
-        return tasks;
+        return taskNames;
     }
 
     private String loadDefaultTaskNames() {

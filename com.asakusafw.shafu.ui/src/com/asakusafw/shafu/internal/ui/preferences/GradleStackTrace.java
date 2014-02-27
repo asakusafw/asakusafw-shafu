@@ -16,7 +16,6 @@
 package com.asakusafw.shafu.internal.ui.preferences;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,36 +27,36 @@ import com.asakusafw.shafu.internal.ui.LogUtil;
 
 /**
  * Represents a stack trace property value.
+ * @version 0.2.4
  */
 public enum GradleStackTrace implements GradleOption {
 
     /**
      * Do not show any exceptions.
      */
-    NEVER(Messages.GradleStackTrace_neverDescription),
+    NEVER(Messages.GradleStackTrace_neverDescription, null, null),
 
     /**
      * Show only user exceptions.
      */
-    USER(Messages.GradleStackTrace_userDescription, new String[] {
-            "--stacktrace", //$NON-NLS-1$
-    }),
+    USER(Messages.GradleStackTrace_userDescription, "-s", "--stacktrace"), //$NON-NLS-1$ //$NON-NLS-2$
 
     /**
      * Show all exceptions.
      */
-    ALL(Messages.GradleStackTrace_allDescription, new String[] {
-            "--full-stacktrace", //$NON-NLS-1$
-    }),
+    ALL(Messages.GradleStackTrace_allDescription, "-S", "--full-stacktrace"), //$NON-NLS-1$ //$NON-NLS-2$
 
     ;
     private final String description;
 
-    private final List<String> arguments;
+    private final String optionName;
 
-    private GradleStackTrace(String description, String... arguments) {
+    private final String longOptionName;
+
+    private GradleStackTrace(String description, String optionName, String longOptionName) {
         this.description = description;
-        this.arguments = Collections.unmodifiableList(Arrays.asList(arguments));
+        this.optionName = optionName;
+        this.longOptionName = longOptionName;
     }
 
     @Override
@@ -68,6 +67,24 @@ public enum GradleStackTrace implements GradleOption {
     @Override
     public String getSymbol() {
         return this.name();
+    }
+
+    @Override
+    public String getOptionName() {
+        return optionName;
+    }
+
+    @Override
+    public String getLongOptionName() {
+        return longOptionName;
+    }
+
+    @Override
+    public List<String> getArguments() {
+        if (getLongOptionName() == null) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(getLongOptionName());
     }
 
     /**
@@ -88,11 +105,6 @@ public enum GradleStackTrace implements GradleOption {
                             symbol)));
             return NEVER;
         }
-    }
-
-    @Override
-    public List<String> getArguments() {
-        return arguments;
     }
 
     @Override

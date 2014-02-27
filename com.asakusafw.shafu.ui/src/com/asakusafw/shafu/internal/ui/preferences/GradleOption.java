@@ -19,6 +19,7 @@ import java.util.List;
 
 /**
  * Represents a Gradle option.
+ * @version 0.2.4
  */
 public interface GradleOption {
 
@@ -45,4 +46,18 @@ public interface GradleOption {
      * @return the arguments
      */
     List<String> getArguments();
+
+    /**
+     * Returns the short option name.
+     * @return the short option name, or {@code null} if it is not defined
+     * @since 0.2.4
+     */
+    String getOptionName();
+
+    /**
+     * Returns the long option name.
+     * @return the long option name, or {@code null} if it is not defined
+     * @since 0.2.4
+     */
+    String getLongOptionName();
 }
