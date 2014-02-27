@@ -15,6 +15,9 @@
  */
 package com.asakusafw.shafu.internal.ui.handlers;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -22,18 +25,17 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.dialogs.InputDialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.asakusafw.shafu.core.util.CommandLineUtil;
 import com.asakusafw.shafu.internal.ui.Activator;
+import com.asakusafw.shafu.internal.ui.dialogs.InputWithHistoryDialog;
 import com.asakusafw.shafu.ui.ShafuUi;
 import com.asakusafw.shafu.ui.util.ProjectHandlerUtils;
 
 /**
  * Handles build command.
- * @version 0.2.4
+ * @version 0.2.5
  */
 public class BuildProjectHandler extends AbstractHandler {
 
@@ -41,13 +43,17 @@ public class BuildProjectHandler extends AbstractHandler {
 
     private static final String PROPERTY_TASK_NAMES = "taskNames"; //$NON-NLS-1$
 
+    private static final String PROPERTY_COMMAND_LINE_HISTORY = "taskHistory"; //$NON-NLS-1$
+
+    private static final int HISTORY_SIZE_LIMIT = 10;
+
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         IProject project = ProjectHandlerUtils.getTargetProject(event);
         if (project == null) {
             return null;
         }
-        String commandLine = getTaskNames(event);
+        String commandLine = getTaskNames(event, project.getName());
         if (commandLine == null) {
             return null;
         }
@@ -57,20 +63,20 @@ public class BuildProjectHandler extends AbstractHandler {
         return null;
     }
 
-    private String getTaskNames(ExecutionEvent event) throws ExecutionException {
+    private String getTaskNames(ExecutionEvent event, String location) throws ExecutionException {
         String taskNames = event.getParameter(PARAMETER_TASK_NAMES);
         if (taskNames == null) {
             String defaultTaskNames = loadDefaultTaskNames();
-            InputDialog dialog = new InputDialog(
+            List<String> commandLineHistory = loadCommandLineHisotry();
+            taskNames = InputWithHistoryDialog.open(
                     HandlerUtil.getActiveShellChecked(event),
-                    Messages.BuildProjectHandler_inputTitle,
+                    MessageFormat.format(Messages.BuildProjectHandler_inputTitle, location),
                     Messages.BuildProjectHandler_inputLabel,
                     defaultTaskNames,
-                    null);
-            if (dialog.open() != Window.OK) {
+                    commandLineHistory);
+            if (taskNames == null) {
                 return null;
             }
-            taskNames = dialog.getValue();
             saveDefaultTaskNames(taskNames);
         }
         return taskNames;
@@ -88,5 +94,24 @@ public class BuildProjectHandler extends AbstractHandler {
     private void saveDefaultTaskNames(String taskNames) {
         IDialogSettings settings = Activator.getDialogSettings(getClass().getSimpleName());
         settings.put(PROPERTY_TASK_NAMES, taskNames);
+
+        LinkedList<String> history = loadCommandLineHisotry();
+        history.remove(taskNames);
+        history.addFirst(taskNames);
+        while (history.size() > HISTORY_SIZE_LIMIT) {
+            history.removeLast();
+        }
+
+        settings.put(PROPERTY_COMMAND_LINE_HISTORY, history.toArray(new String[history.size()]));
+    }
+
+    private LinkedList<String> loadCommandLineHisotry() {
+        IDialogSettings settings = Activator.getDialogSettings(getClass().getSimpleName());
+        String[] values = settings.getArray(PROPERTY_COMMAND_LINE_HISTORY);
+        LinkedList<String> results = new LinkedList<String>();
+        if (values != null) {
+            Collections.addAll(results, values);
+        }
+        return results;
     }
 }
