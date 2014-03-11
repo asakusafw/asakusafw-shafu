@@ -154,6 +154,7 @@ final class GradleUtil {
      * Configures the operation and creates an {@link OperationHandler} for it.
      * @param operation the target operation
      * @param context the target context
+     * @param <T> the operation result type
      * @return the created handler
      */
     public static <T> OperationHandler<T> configureOperation(
@@ -300,6 +301,10 @@ final class GradleUtil {
         throw new FileNotFoundException(url.toExternalForm());
     }
 
+    /**
+     * Handles Gradle operations.
+     * @param <T> the operation result type
+     */
     public static class OperationHandler<T> implements ResultHandler<T>, Closeable {
 
         private final CountDownLatch latch = new CountDownLatch(1);

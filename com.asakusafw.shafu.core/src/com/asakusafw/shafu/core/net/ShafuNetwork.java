@@ -52,10 +52,11 @@ public final class ShafuNetwork {
      * Processes a content on the target URL.
      * @param url the target URL
      * @param processor the content processor
+     * @param <T> the processing result type
      * @return the process result
      * @throws IOException if failed to process the content
      */
-    public static <T> T processContent(URL url, IContentProcessor<T> processor) throws IOException {
+    public static <T> T processContent(URL url, IContentProcessor<? extends T> processor) throws IOException {
         String protocol = url.getProtocol();
         if (protocol != null && HTTP_SCHEMES.contains(protocol)) {
             return processHttpContent(url, processor);

@@ -55,6 +55,7 @@ public class GradleInspectTask<T> implements ICallable<T> {
      * Creates a new instance.
      * @param configuration the task configuration
      * @param modelClass the model class
+     * @param <T> the Gradle model type
      * @return the created instance
      */
     public static <T> GradleInspectTask<T> newInstance(GradleContext configuration, Class<T> modelClass) {

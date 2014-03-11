@@ -67,6 +67,7 @@ public final class ProgressUtils {
      * @param context the target context
      * @param callable the target operation
      * @return the operation result
+     * @param <T> the operation result type
      * @throws CoreException if the operation was failed
      */
     public static <T> T call(IRunnableContext context, final ICallable<T> callable) throws CoreException {
