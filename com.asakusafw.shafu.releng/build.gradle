@@ -27,7 +27,7 @@ def targetFeatures = [
 def targetVersion = '0.2.6.qualifier'
 def targetDropinName = 'jinrikisha'
 
-def eclipseUrl = 'http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-win32.zip'
+def eclipseUrl = System.getProperty('eclipse.download', 'http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-win32.zip')
 
 def compilerCompliance = '1.6'
 def pdeDirectory = new File(buildDir, 'pde')
@@ -47,8 +47,11 @@ task cleanPdeTools() << {
 
 task prepareTools() {
     ext.eclipseDirectory = null
-    if (hasProperty('eclipseLocation')) {
-        ext.eclipseDirectory = new File(eclipseLocation)
+    if (System.getProperty('eclipse.install')) {
+        ext.eclipseDirectory = new File(System.getProperty('eclipse.install'))
+        if (!ext.eclipseDirectory.isDirectory()) {
+            throw new IllegalArgumentException("Invalid -Declipse.install location: ${ext.eclipseDirectory}")
+        }
     } else {
         ext.eclipseDirectory = new File(toolsDirectory, 'eclipse')
     }
@@ -58,8 +61,9 @@ task prepareTools() {
         if (eclipseDirectory.exists()) {
             return
         }
+        logging.level = LogLevel.INFO
         def archiveFile = new File(toolsDirectory, 'eclipse.zip')
-        ant.get(src: eclipseUrl, dest: archiveFile.absolutePath)
+        ant.get src: eclipseUrl, dest: archiveFile.absolutePath, verbose: true
         copy {
             from zipTree(archiveFile)
             into toolsDirectory
