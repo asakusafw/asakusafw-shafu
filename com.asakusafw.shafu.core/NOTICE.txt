@@ -1,5 +1,5 @@
 Shafu Core Plug-in.
-Copyright 2013 Asakusa Framework Development Team
+Copyright 2014 Asakusa Framework Development Team
 
 This product includes following components:
 * Gradle Tooling API (http://www.gradle.org/)
