@@ -225,6 +225,6 @@ def extractAndDelete(File file) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = '1.12'
 }
 
