@@ -24,7 +24,7 @@ def targetFeatures = [
     'com.asakusafw.shafu.feature',
     'com.asakusafw.shafu.asakusafw.feature',
 ]
-def targetVersion = '0.2.6.qualifier'
+def targetVersion = '0.2.7.qualifier'
 def targetDropinName = 'jinrikisha'
 
 def eclipseUrl = System.getProperty('eclipse.download', 'http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-win32.zip')
