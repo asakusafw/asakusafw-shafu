@@ -16,11 +16,14 @@
 package com.asakusafw.shafu.internal.ui.preferences;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * Preferences constants for Shafu UI.
+ * @since 0.1.0
+ * @version 0.2.7
  */
 public final class ShafuPreferenceConstants {
 
@@ -64,6 +67,16 @@ public final class ShafuPreferenceConstants {
     public static final String KEY_JAVA_HOME = "javaHome"; //$NON-NLS-1$
 
     /**
+     * The Gradle distribution property key.
+     */
+    public static final String KEY_GRADLE_VERSION = "gradleVersion"; //$NON-NLS-1$
+
+    /**
+     * The Gradle distribution property key.
+     */
+    public static final String KEY_GRADLE_DISTRIBUTION = "gradleDistribution"; //$NON-NLS-1$
+
+    /**
      * The log level default value.
      */
     public static final GradleLogLevel DEFAULT_LOG_LEVEL = GradleLogLevel.LIFECYCLE;
@@ -98,6 +111,18 @@ public final class ShafuPreferenceConstants {
      * The Java home default value.
      */
     public static final File DEFAULT_JAVA_HOME = null;
+
+    /**
+     * The Gradle version default value.
+     * @since 0.2.7
+     */
+    public static final String DEFAULT_GRADLE_VERSION = null;
+
+    /**
+     * The Gradle distribution default value.
+     * @since 0.2.7
+     */
+    public static final URI DEFAULT_GRADLE_DISTRIBUTION = null;
 
 
 }

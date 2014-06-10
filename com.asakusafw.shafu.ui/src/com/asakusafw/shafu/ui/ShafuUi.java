@@ -19,6 +19,7 @@ import static com.asakusafw.shafu.internal.ui.preferences.ShafuPreferenceConstan
 import static com.asakusafw.shafu.ui.util.PreferenceUtils.*;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -104,6 +105,8 @@ public final class ShafuUi {
         Map<String, String> systemProps = decodeToMap(prefs.getString(KEY_SYSTEM_PROPERTIES));
         File gradleUserHome = decodeFile(prefs.getString(KEY_GRADLE_USER_HOME));
         File javaHome = decodeFile(prefs.getString(KEY_JAVA_HOME));
+        String gradleVersion = decodeVersion(prefs.getString(KEY_GRADLE_VERSION));
+        URI gradleDistribution = decodeUri(prefs.getString(KEY_GRADLE_DISTRIBUTION));
 
         if (appearsIn(GradleLogLevel.values(), arguments) == false) {
             context.withGradleArguments(logLevel.getArguments());
@@ -124,6 +127,8 @@ public final class ShafuUi {
         }
         context.setGradleUserHomeDir(gradleUserHome);
         context.setJavaHomeDir(javaHome);
+        context.setGradleVersion(gradleVersion);
+        context.setGradleDistribution(gradleDistribution);
 
         return context;
     }

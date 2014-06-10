@@ -143,6 +143,8 @@ final class GradleUtil {
         connector.forProjectDirectory(context.getProjectDirectory().getAbsoluteFile());
         if (context.getGradleDistribution() != null) {
             connector.useDistribution(context.getGradleDistribution());
+        } else if (context.getGradleVersion() != null) {
+            connector.useGradleVersion(context.getGradleVersion());
         }
         if (context.getGradleUserHomeDir() != null) {
             connector.useGradleUserHomeDir(context.getGradleUserHomeDir().getAbsoluteFile());

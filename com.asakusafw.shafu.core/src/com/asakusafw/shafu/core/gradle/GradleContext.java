@@ -27,6 +27,8 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 
 /**
  * Represents a Gradle context.
+ * @since 0.1.0
+ * @version 0.2.7
  */
 public final class GradleContext {
 
@@ -36,6 +38,8 @@ public final class GradleContext {
     public static final String DEFAULT_BUILD_SCRIPT_NAME = "build.gradle"; //$NON-NLS-1$
 
     final File projectDirectory;
+
+    volatile String gradleVersionOrNull;
 
     volatile URI gradleDistributionOrNull;
 
@@ -69,6 +73,25 @@ public final class GradleContext {
      */
     public File getProjectDirectory() {
         return projectDirectory;
+    }
+
+    /**
+     * Returns the Gradle version.
+     * This will be used only if {@link #getGradleDistribution() Gradle distribution URI} is not set.
+     * @return the Gradle version, or {@code null} if the target Gradle version is not specified
+     * @since 0.2.7
+     */
+    public String getGradleVersion() {
+        return gradleVersionOrNull;
+    }
+
+    /**
+     * Sets the Gradle version.
+     * @param version the target Gradle version
+     * @since 0.2.7
+     */
+    public void setGradleVersion(String version) {
+        this.gradleVersionOrNull = version;
     }
 
     /**

@@ -36,6 +36,7 @@ final class Messages extends NLS {
     public static String ShafuPreferencePage_groupLogging;
     public static String ShafuPreferencePage_hintOptionalText;
     public static String ShafuPreferencePage_itemGradleUserHome;
+    public static String ShafuPreferencePage_itemGradleVersion;
     public static String ShafuPreferencePage_itemJavaHome;
     public static String ShafuPreferencePage_itemLogLevel;
     public static String ShafuPreferencePage_itemNetworkMode;

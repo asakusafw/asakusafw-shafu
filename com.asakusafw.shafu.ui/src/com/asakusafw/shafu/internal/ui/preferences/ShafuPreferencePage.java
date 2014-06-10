@@ -56,8 +56,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TableColumn;
@@ -126,6 +128,7 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
                 .grab(true, false)
                 .create());
         environmentGroup.setLayout(new GridLayout(2, false));
+        createVersionField(environmentGroup, KEY_GRADLE_VERSION, Messages.ShafuPreferencePage_itemGradleVersion, 10, false);
         createComboField(environmentGroup, KEY_NETWORK_MODE, GradleNetworkMode.values(), Messages.ShafuPreferencePage_itemNetworkMode);
         createDirectoryField(environmentGroup, KEY_GRADLE_USER_HOME, 2, Messages.ShafuPreferencePage_itemGradleUserHome, false);
     }
@@ -145,6 +148,50 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
         TabItem item = new TabItem(folder, SWT.NONE);
         item.setText(label);
         item.setControl(content);
+    }
+
+    private void createVersionField(
+            Composite pane, final String key, String title, int columns, final boolean mandatory) {
+        Label label = new Label(pane, SWT.NONE);
+        label.setText(title + ':');
+        label.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.CENTER)
+                .indent(BasicField.getDecorationWidth(), 0)
+                .create());
+
+        final Text text = new Text(pane, SWT.BORDER);
+        text.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.BEGINNING, SWT.CENTER)
+                .indent(convertWidthInCharsToPixels(2) + BasicField.getDecorationWidth(), 0)
+                .hint(convertWidthInCharsToPixels(columns + 1), SWT.DEFAULT)
+                .create());
+
+        registerField(new PreferenceField(key, text) {
+            @Override
+            public void refresh() {
+                String current = getPreferenceValue(key);
+                String value = decodeVersion(current);
+                value = value == null ? "" : value; //$NON-NLS-1$
+                text.setText(value);
+            }
+            @Override
+            protected IStatus getDefaultStatus() {
+                if (mandatory) {
+                    return Status.OK_STATUS;
+                } else {
+                    return new Status(
+                            IStatus.INFO,
+                            Activator.PLUGIN_ID,
+                            Messages.ShafuPreferencePage_hintOptionalText);
+                }
+            }
+        });
+        text.addListener(SWT.Modify, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                setPreferenceValue(key, encodeVersion(text.getText()));
+            }
+        });
     }
 
     private void createComboField(Composite pane, final String key, GradleOption[] options, String title) {
