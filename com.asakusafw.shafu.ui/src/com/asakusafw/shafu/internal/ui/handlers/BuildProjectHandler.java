@@ -24,19 +24,21 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.asakusafw.shafu.core.util.CommandLineUtil;
 import com.asakusafw.shafu.internal.ui.Activator;
+import com.asakusafw.shafu.internal.ui.LogUtil;
 import com.asakusafw.shafu.internal.ui.dialogs.InputWithHistoryDialog;
 import com.asakusafw.shafu.ui.ShafuUi;
 import com.asakusafw.shafu.ui.util.ProjectHandlerUtils;
 
 /**
  * Handles build command.
- * @version 0.2.5
+ * @version 0.2.8
  */
 public class BuildProjectHandler extends AbstractHandler {
 
@@ -46,7 +48,9 @@ public class BuildProjectHandler extends AbstractHandler {
 
     private static final String PROPERTY_COMMAND_LINE_HISTORY = "taskHistory"; //$NON-NLS-1$
 
-    private static final int HISTORY_SIZE_LIMIT = 10;
+    static final String KEY_HISTORY_SIZE_LIMIT = "com.asakusafw.shafu.ui.history.limit"; //$NON-NLS-1$
+
+    static final int DEFAULT_HISTORY_SIZE_LIMIT = 10;
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -102,7 +106,7 @@ public class BuildProjectHandler extends AbstractHandler {
         LinkedList<String> history = loadCommandLineHisotry();
         history.remove(taskNames);
         history.addFirst(taskNames);
-        while (history.size() > HISTORY_SIZE_LIMIT) {
+        while (history.size() > Lazy.HISTORY_SIZE_LIMIT) {
             history.removeLast();
         }
 
@@ -117,5 +121,31 @@ public class BuildProjectHandler extends AbstractHandler {
             Collections.addAll(results, values);
         }
         return results;
+    }
+
+    private static final class Lazy {
+
+        static final int HISTORY_SIZE_LIMIT;
+        static {
+            String value = System.getProperty(KEY_HISTORY_SIZE_LIMIT);
+            int result = DEFAULT_HISTORY_SIZE_LIMIT;
+            if (value != null && value.trim().isEmpty() == false) {
+                try {
+                    result = Integer.parseInt(value.trim());
+                } catch (NumberFormatException e) {
+                    LogUtil.log(IStatus.ERROR,
+                            MessageFormat.format(
+                                    "Invalid history size: {0}={1}", //$NON-NLS-1$
+                                    KEY_HISTORY_SIZE_LIMIT,
+                                    value),
+                            e);
+                }
+            }
+            HISTORY_SIZE_LIMIT = Math.max(result, DEFAULT_HISTORY_SIZE_LIMIT);
+        }
+
+        private Lazy() {
+            return;
+        }
     }
 }
