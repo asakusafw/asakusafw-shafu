@@ -71,6 +71,19 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+B">
       </key>
+      <key
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+B">
+      </key>
+      <key
+            commandId="com.asakusafw.shafu.ui.buildProject"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M4+B">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
