@@ -74,6 +74,7 @@ final class Messages extends NLS {
     public static String SelectProjectTemplatePage_buildCheckLabel;
     public static String SelectProjectTemplatePage_buildCheckTooltip;
     public static String SelectProjectTemplatePage_description;
+    public static String SelectProjectTemplatePage_disableTemplateFilterLabel;
     public static String SelectProjectTemplatePage_errorFileEmpty;
     public static String SelectProjectTemplatePage_errorFileMissing;
     public static String SelectProjectTemplatePage_errorFileNotSupport;
@@ -85,6 +86,7 @@ final class Messages extends NLS {
     public static String SelectProjectTemplatePage_openConsoleLabel;
     public static String SelectProjectTemplatePage_openConsoleTooltip;
     public static String SelectProjectTemplatePage_openFileButton;
+    public static String SelectProjectTemplatePage_templateFilterPattern;
     public static String SelectProjectTemplatePage_title;
     public static String SelectProjectTemplatePage_urlNoTemplateMessage;
     public static String SelectProjectTemplatePage_urlNoTemplateTitle;

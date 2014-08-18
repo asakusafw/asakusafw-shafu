@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -34,6 +36,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -49,13 +53,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.dialogs.ListDialog;
 
 import com.asakusafw.shafu.core.gradle.GradleBuildTask;
 import com.asakusafw.shafu.core.util.IRunnable;
 import com.asakusafw.shafu.core.util.StatusUtils;
 import com.asakusafw.shafu.internal.ui.Activator;
 import com.asakusafw.shafu.internal.ui.LogUtil;
+import com.asakusafw.shafu.internal.ui.dialogs.FilteredListDialog;
 import com.asakusafw.shafu.ui.IProjectTemplateProvider;
 import com.asakusafw.shafu.ui.ShafuUi;
 import com.asakusafw.shafu.ui.consoles.ShafuConsole;
@@ -63,6 +67,8 @@ import com.asakusafw.shafu.ui.util.ProgressUtils;
 
 /**
  * Project template selection page.
+ * @since 0.1.0
+ * @version 0.2.9
  */
 public class SelectProjectTemplatePage extends WizardPage {
 
@@ -78,6 +84,9 @@ public class SelectProjectTemplatePage extends WizardPage {
             ".zip", //$NON-NLS-1$
             ".tar.gz", //$NON-NLS-1$
     }));
+
+    private static final Pattern PATTERN_TEMPLATE_FILTER = Pattern.compile(
+            Messages.SelectProjectTemplatePage_templateFilterPattern);
 
     private ShafuConsole console;
 
@@ -245,17 +254,16 @@ public class SelectProjectTemplatePage extends WizardPage {
             return null;
         }
 
-        ListDialog dialog = new ListDialog(getShell()) {
-            @Override
-            protected int getTableStyle() {
-                return super.getTableStyle() | SWT.SINGLE | SWT.FULL_SELECTION;
-            }
-        };
+        FilteredListDialog dialog = new FilteredListDialog(getShell());
         dialog.setTitle(Messages.SelectProjectTemplatePage_urlSelectTemplateTitle);
         dialog.setMessage(Messages.SelectProjectTemplatePage_urlSelectTemplateMessage);
         dialog.setContentProvider(new ArrayContentProvider());
         dialog.setLabelProvider(new LabelProvider());
-        dialog.setInput(templates.keySet().toArray());
+        dialog.setFilter(
+                new RegexFilter(PATTERN_TEMPLATE_FILTER),
+                Messages.SelectProjectTemplatePage_disableTemplateFilterLabel);
+        dialog.setFilterEnabled(true);
+        dialog.setInputData(templates.keySet().toArray());
         dialog.setBlockOnOpen(true);
 
         for (Map.Entry<String, URL> entry : templates.entrySet()) {
@@ -517,6 +525,21 @@ public class SelectProjectTemplatePage extends WizardPage {
             }
         } finally {
             super.dispose();
+        }
+    }
+
+    private static final class RegexFilter extends ViewerFilter {
+
+        private final Pattern pattern;
+
+        public RegexFilter(Pattern pattern) {
+            this.pattern = pattern;
+        }
+
+        @Override
+        public boolean select(Viewer viewer, Object parentElement, Object element) {
+            Matcher matcher = pattern.matcher((CharSequence) element);
+            return matcher.find() == false;
         }
     }
 }
