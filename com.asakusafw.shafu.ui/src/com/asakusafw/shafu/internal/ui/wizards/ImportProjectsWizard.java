@@ -38,6 +38,7 @@ import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkingSet;
 
 import com.asakusafw.shafu.core.gradle.GradleBuildTask;
 import com.asakusafw.shafu.core.gradle.GradleContext;
@@ -55,12 +56,18 @@ import com.asakusafw.shafu.ui.util.ProgressUtils;
  */
 public class ImportProjectsWizard extends Wizard implements IImportWizard {
 
+    private IWorkbench currentWorkbench;
+
+    private IStructuredSelection currentSelection;
+
     private SelectProjectDirectoryPage selectProjectDirectory;
 
     private SelectGradleProjectsPage selectGradleProjects;
 
     @Override
     public void init(IWorkbench workbench, IStructuredSelection selection) {
+        this.currentWorkbench = workbench;
+        this.currentSelection = selection;
         setWindowTitle(Messages.ImportProjectsWizard_title);
         setNeedsProgressMonitor(true);
     }
@@ -69,6 +76,7 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
     public void addPages() {
         this.selectProjectDirectory = new SelectProjectDirectoryPage();
         this.selectGradleProjects = new SelectGradleProjectsPage();
+        this.selectGradleProjects.setSelection(currentSelection);
         addPage(selectProjectDirectory);
         addPage(selectGradleProjects);
     }
@@ -111,7 +119,9 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
         if (rootProjectDirectory == null || projectDirectories.isEmpty()) {
             return false;
         }
+        final IWorkbench workbench = currentWorkbench;
         final List<String> taskNames = selectGradleProjects.getTaskNames();
+        final IWorkingSet[] workingSets = selectGradleProjects.getWorkingSets();
         final ShafuConsole console = selectGradleProjects.getConsole();
         console.clearConsole();
         try {
@@ -126,7 +136,10 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
                             .run(new SubProgressMonitor(monitor, 60));
 
                         ResourcesPlugin.getWorkspace().run(
-                                RunnableBuilder.toWorkspaceRunnable(new ImportProject(projectDirectories)),
+                                RunnableBuilder.toWorkspaceRunnable(new ImportProject(
+                                        workbench,
+                                        projectDirectories,
+                                        workingSets)),
                                 new SubProgressMonitor(monitor, 40));
                     } finally {
                         monitor.done();
@@ -146,16 +159,22 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
 
     private static class ImportProject implements IRunnable {
 
+        private final IWorkbench workbench;
+
         private final List<File> projectDirectories;
 
-        public ImportProject(List<File> projectDirectories) {
+        private final IWorkingSet[] workingSets;
+
+        public ImportProject(IWorkbench workbench, List<File> projectDirectories, IWorkingSet[] workingSets) {
+            this.workbench = workbench;
             this.projectDirectories = projectDirectories;
+            this.workingSets = workingSets;
         }
 
         @Override
         public void run(IProgressMonitor monitor) throws CoreException {
             SubMonitor sub = SubMonitor.convert(monitor);
-            sub.beginTask(Messages.ImportProjectsWizard_monitorImportProjects, projectDirectories.size());
+            sub.beginTask(Messages.ImportProjectsWizard_monitorImportProjects, projectDirectories.size() + 1);
             try {
                 List<IStatus> statuses = new ArrayList<IStatus>();
                 for (File directory : projectDirectories) {
@@ -205,6 +224,9 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
             }
             project.create(description, new SubProgressMonitor(monitor, 10));
             project.open(new SubProgressMonitor(monitor, 10));
+            if (workingSets.length > 0) {
+                workbench.getWorkingSetManager().addToWorkingSets(project, workingSets);
+            }
             return true;
         }
 

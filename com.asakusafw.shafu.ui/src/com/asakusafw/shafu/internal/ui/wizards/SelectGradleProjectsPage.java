@@ -36,6 +36,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.IColorProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -54,7 +55,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import org.eclipse.ui.ide.IDE.SharedImages;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
@@ -74,9 +77,18 @@ import com.asakusafw.shafu.ui.util.ProgressUtils;
  */
 public class SelectGradleProjectsPage extends WizardPage {
 
+    private static final String[] WORKING_SETS = {
+        "org.eclipse.ui.resourceWorkingSetPage", //$NON-NLS-1$
+        "org.eclipse.jdt.ui.JavaWorkingSetPage", //$NON-NLS-1$
+    };
+
     private static final String KEY_DIALOG_BUILD = "build"; //$NON-NLS-1$
 
+    private IStructuredSelection selection;
+
     private CheckboxTableViewer viewer;
+
+    private WorkingSetConfigurationBlock workingSets;
 
     private Button buildCheck;
 
@@ -140,6 +152,7 @@ public class SelectGradleProjectsPage extends WizardPage {
         });
 
         createGradleSettings(pane);
+        createWorkingSetSettings(pane);
         createConsoleButton(pane);
 
         Dialog.applyDialogFont(pane);
@@ -175,11 +188,29 @@ public class SelectGradleProjectsPage extends WizardPage {
         buildCheck.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                boolean selection = ((Button) e.getSource()).getSelection();
-                settings.put(KEY_DIALOG_BUILD, String.valueOf(selection));
+                boolean doBuild = ((Button) e.getSource()).getSelection();
+                settings.put(KEY_DIALOG_BUILD, String.valueOf(doBuild));
                 refreshSelection();
             }
         });
+    }
+
+    private void createWorkingSetSettings(Composite pane) {
+        Group group = new Group(pane, SWT.NONE);
+        group.setText(Messages.SelectGradleProjectsPage_workingSetGroupLabel);
+        group.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .grab(true, false)
+                .indent(convertWidthInCharsToPixels(1), convertHeightInCharsToPixels(1))
+                .create());
+        group.setLayout(new GridLayout());
+        this.workingSets = new WorkingSetConfigurationBlock(
+                WORKING_SETS,
+                Activator.getDialogSettings(getClass().getSimpleName()));
+        if (selection != null) {
+            workingSets.setWorkingSets(workingSets.findApplicableWorkingSets(selection));
+        }
+        workingSets.createContent(group);
     }
 
     private void createConsoleButton(Composite pane) {
@@ -371,6 +402,10 @@ public class SelectGradleProjectsPage extends WizardPage {
         }
     }
 
+    void setSelection(IStructuredSelection selection) {
+        this.selection = selection;
+    }
+
     List<String> getTaskNames() {
         List<String> results = new ArrayList<String>();
         if (buildCheck.getSelection()) {
@@ -390,6 +425,10 @@ public class SelectGradleProjectsPage extends WizardPage {
             return Collections.emptyList();
         }
         return selectedProjectDirectories;
+    }
+
+    IWorkingSet[] getWorkingSets() {
+        return workingSets.getSelectedWorkingSets();
     }
 
     @Override

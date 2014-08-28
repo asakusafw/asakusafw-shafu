@@ -63,6 +63,7 @@ final class Messages extends NLS {
     public static String SelectGradleProjectsPage_openConsoleTooltip;
     public static String SelectGradleProjectsPage_targetLabel;
     public static String SelectGradleProjectsPage_title;
+    public static String SelectGradleProjectsPage_workingSetGroupLabel;
     public static String SelectProjectDirectoryPage_description;
     public static String SelectProjectDirectoryPage_directoryDialogTitle;
     public static String SelectProjectDirectoryPage_errorDirectoryEmpty;
