@@ -19,6 +19,8 @@ import org.eclipse.osgi.util.NLS;
 
 final class Messages extends NLS {
     private static final String BUNDLE_NAME = "com.asakusafw.shafu.internal.asakusafw.gradle.messages"; //$NON-NLS-1$
+    public static String AsakusaFrameworkGradleContextEnhancer_errorExtractExtraScript;
+    public static String AsakusaFrameworkGradleContextEnhancer_monitorEnhance;
     public static String AsakusaFrameworkTemplateProvider_errorCatalogEntryRecordInvalid;
     public static String AsakusaFrameworkTemplateProvider_errorCatalogEntryUrlInvalid;
     public static String AsakusaFrameworkTemplateProvider_errorCatalogUrlInvalid;
