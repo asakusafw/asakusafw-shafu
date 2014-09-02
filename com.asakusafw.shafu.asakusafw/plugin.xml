@@ -32,7 +32,7 @@
                style="push">
             <parameter
                   name="taskNames"
-                  value="compileDMDL">
+                  value="cleanCompileDMDL compileDMDL">
             </parameter>
          </command>
          <command
