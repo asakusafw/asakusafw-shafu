@@ -116,13 +116,11 @@ public final class ShafuPreferenceConstants {
      * The Gradle version default value.
      * @since 0.2.7
      */
-    public static final String DEFAULT_GRADLE_VERSION = null;
+    public static final String DEFAULT_GRADLE_VERSION = "1.12";
 
     /**
      * The Gradle distribution default value.
      * @since 0.2.7
      */
     public static final URI DEFAULT_GRADLE_DISTRIBUTION = null;
-
-
 }
