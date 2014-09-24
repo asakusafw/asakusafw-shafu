@@ -108,7 +108,7 @@ public class GradleBuildTask implements IRunnable {
             try {
                 builder.run(handler);
                 while (handler.await() == false) {
-                    GradleUtil.checkCancel(monitor);
+                    GradleUtil.checkCancel(monitor, handler);
                     ProgressEvent event = handler.takeProgressEvent();
                     if (event != null) {
                         monitor.setTaskName(String.format("[Gradle] %s", event.getDescription())); //$NON-NLS-1$

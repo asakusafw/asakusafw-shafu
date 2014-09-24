@@ -43,6 +43,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
@@ -70,6 +71,8 @@ final class GradleUtil {
     private static final char SYSTEM_PROPERTY_FIELD_SEPARATOR = '=';
 
     private static final String KEY_CANCEL_FILE = "com.asakusafw.shafu.core.cancelFile"; //$NON-NLS-1$
+
+    static final long DEFAULT_SOFT_CANCELLATION_TIMEOUT_MILLIS = 3000L;
 
     private GradleUtil() {
         return;
@@ -131,6 +134,23 @@ final class GradleUtil {
      */
     public static void checkCancel(IProgressMonitor monitor) throws CoreException {
         StatusUtils.checkCanceled(monitor);
+    }
+
+    /**
+     * Detects whether cancel is requested or not and raises {@link CoreException} with {@link Status#CANCEL_STATUS}.
+     * @param monitor the current monitor
+     * @param handler current running operation
+     * @throws CoreException if cancel was requested
+     */
+    public static void checkCancel(IProgressMonitor monitor, OperationHandler<?> handler) throws CoreException {
+        if (monitor.isCanceled()) {
+            try {
+                handler.cancel();
+            } catch (InterruptedException e) {
+                monitor.setCanceled(true);
+            }
+            throw new CoreException(Status.CANCEL_STATUS);
+        }
     }
 
     /**
@@ -318,6 +338,8 @@ final class GradleUtil {
         private final AtomicReference<GradleConnectionException> exceptionRef =
                 new AtomicReference<GradleConnectionException>();
 
+        private final CancellationTokenSource cancellator;
+
         final Properties systemProperties;
 
         private final File cancelFile;
@@ -332,18 +354,25 @@ final class GradleUtil {
                 LongRunningOperation operation,
                 Properties systemProperties,
                 File cancelFile) {
+            this.cancellator = GradleConnector.newCancellationTokenSource();
             operation.addProgressListener(new ProgressListener() {
                 @Override
                 public void statusChanged(ProgressEvent event) {
                     eventRef.set(event);
                 }
             });
+            operation.withCancellationToken(cancellator.token());
             this.systemProperties = systemProperties;
             this.cancelFile = cancelFile;
         }
 
         public boolean await() throws InterruptedException {
             return latch.await(100, TimeUnit.MILLISECONDS);
+        }
+
+        public void cancel() throws InterruptedException {
+            cancellator.cancel();
+            latch.await(DEFAULT_SOFT_CANCELLATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         }
 
         public ProgressEvent takeProgressEvent() {
