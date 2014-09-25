@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Preferences constants for Shafu UI.
  * @since 0.1.0
- * @version 0.2.7
+ * @version 0.3.1
  */
 public final class ShafuPreferenceConstants {
 
@@ -72,6 +72,12 @@ public final class ShafuPreferenceConstants {
     public static final String KEY_GRADLE_VERSION = "gradleVersion"; //$NON-NLS-1$
 
     /**
+     * The property key whether use HTTPS on downloading Gradle distributions.
+     * @since 0.3.1
+     */
+    public static final String KEY_USE_HTTPS = "useHttps"; //$NON-NLS-1$
+
+    /**
      * The Gradle distribution property key.
      */
     public static final String KEY_GRADLE_DISTRIBUTION = "gradleDistribution"; //$NON-NLS-1$
@@ -117,6 +123,12 @@ public final class ShafuPreferenceConstants {
      * @since 0.2.7
      */
     public static final String DEFAULT_GRADLE_VERSION = "1.12";
+
+    /**
+     * The default value of {@link #KEY_USE_HTTPS}.
+     * @since 0.3.1
+     */
+    public static final boolean DEFAULT_USE_HTTPS = false;
 
     /**
      * The Gradle distribution default value.

@@ -28,6 +28,8 @@ final class Messages extends NLS {
     public static String GradleUtil_errorFailedToDeleteCancelMarker;
     public static String GradleUtil_monitorDispose;
     public static String GradleUtil_monitorEnhance;
+    public static String GradleUtil_warnInvalidGradleDistributionUri;
+    public static String GradleUtil_warnInvalidGradleVersion;
     public static String GradleInspectTask_errorFailedToInspectProject;
     public static String GradleInspectTask_monitorConnect;
     public static String GradleInspectTask_monitorDisconnect;

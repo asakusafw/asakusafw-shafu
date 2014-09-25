@@ -50,6 +50,8 @@ import org.gradle.tooling.LongRunningOperation;
 import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProgressListener;
 import org.gradle.tooling.ResultHandler;
+import org.gradle.util.DistributionLocator;
+import org.gradle.util.GradleVersion;
 import org.osgi.framework.Bundle;
 
 import com.asakusafw.shafu.core.util.IoUtils;
@@ -163,13 +165,48 @@ final class GradleUtil {
         connector.forProjectDirectory(context.getProjectDirectory().getAbsoluteFile());
         if (context.getGradleDistribution() != null) {
             connector.useDistribution(context.getGradleDistribution());
-        } else if (context.getGradleVersion() != null) {
-            connector.useGradleVersion(context.getGradleVersion());
+        } else {
+            String version = context.getGradleVersion();
+            version = version == null ? GradleVersion.current().getVersion() : version;
+            URI distribution = toDistributionUri(version, context.isUseHttps());
+            if (distribution != null) {
+                connector.useDistribution(distribution);
+            } else {
+                connector.useGradleVersion(version);
+            }
         }
         if (context.getGradleUserHomeDir() != null) {
             connector.useGradleUserHomeDir(context.getGradleUserHomeDir().getAbsoluteFile());
         }
         return connector;
+    }
+
+    private static URI toDistributionUri(String gradleVersionString, boolean useHttps) {
+        GradleVersion version;
+        try {
+            version = GradleVersion.version(gradleVersionString);
+        } catch (RuntimeException e) {
+            LogUtil.log(IStatus.WARNING, MessageFormat.format(
+                    Messages.GradleUtil_warnInvalidGradleVersion,
+                    gradleVersionString), e);
+            return null;
+        }
+        URI uri = new DistributionLocator().getDistributionFor(version);
+        String scheme = useHttps ? "https" : "http"; //$NON-NLS-1$ //$NON-NLS-2$
+        if (scheme.equals(uri.getScheme())) {
+            return uri;
+        }
+        try {
+            return new URI(
+                    scheme,
+                    uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+        } catch (URISyntaxException e) {
+            LogUtil.log(IStatus.WARNING, MessageFormat.format(
+                    Messages.GradleUtil_warnInvalidGradleDistributionUri,
+                    uri), e);
+            return null;
+        }
     }
 
     /**

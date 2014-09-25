@@ -28,7 +28,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 /**
  * Represents a Gradle context.
  * @since 0.1.0
- * @version 0.2.7
+ * @version 0.3.1
  */
 public final class GradleContext {
 
@@ -40,6 +40,8 @@ public final class GradleContext {
     final File projectDirectory;
 
     volatile String gradleVersionOrNull;
+
+    volatile boolean useHttps;
 
     volatile URI gradleDistributionOrNull;
 
@@ -92,6 +94,25 @@ public final class GradleContext {
      */
     public void setGradleVersion(String version) {
         this.gradleVersionOrNull = version;
+    }
+
+    /**
+     * Returns whether the Tooling API uses HTTPS on downloading Gradle distributions or not.
+     * This will be used only if {@link #getGradleDistribution() Gradle distribution URI} is not set.
+     * @return {@code true} to use HTTPS, otherwise {@code false}
+     * @since 0.3.1
+     */
+    public boolean isUseHttps() {
+        return useHttps;
+    }
+
+    /**
+     * Sets whether the Tooling API uses HTTPS on downloading Gradle distributions or not.
+     * @param use {@code true} to use HTTPS, otherwise {@code false}
+     * @since 0.3.1
+     */
+    public void setUseHttps(boolean use) {
+        this.useHttps = use;
     }
 
     /**
