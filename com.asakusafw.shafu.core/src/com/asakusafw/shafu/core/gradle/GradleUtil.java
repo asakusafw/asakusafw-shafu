@@ -28,6 +28,7 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -244,8 +245,7 @@ final class GradleUtil {
         try {
             operation.setJvmArguments(toArray(context.getJvmArguments()));
             operation.withArguments(toArray(context.getGradleArguments()));
-            final Properties newProperties = new Properties();
-            newProperties.putAll(properties);
+            final Properties newProperties = copyProperties(properties);
             newProperties.put("user.dir", context.getProjectDirectory().getAbsolutePath()); //$NON-NLS-1$
             newProperties.putAll(extractSystemProperties(context));
             OperationHandler<T> results = new OperationHandler<T>(operation, properties, cancelFile);
@@ -265,6 +265,29 @@ final class GradleUtil {
                 IoUtils.deleteQuietly(cancelFile);
             }
         }
+    }
+
+    private static Properties copyProperties(Properties properties) {
+        Properties newProperties = new Properties();
+        for (Map.Entry<?, ?> entry : properties.entrySet()) {
+            if (checkPropertyEntry(entry)) {
+                newProperties.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return newProperties;
+    }
+
+    private static boolean checkPropertyEntry(Map.Entry<?, ?> entry) {
+        Object key = entry.getKey();
+        Object value = entry.getValue();
+        if (key instanceof String && (value == null || value instanceof String)) {
+            return true;
+        }
+        LogUtil.debug("Invalid System property: {0}={1} ({2})", //$NON-NLS-1$
+                key,
+                value,
+                value == null ? "null" : value.getClass().getName()); //$NON-NLS-1$
+        return false;
     }
 
     private static Properties extractSystemProperties(GradleContext context) {
