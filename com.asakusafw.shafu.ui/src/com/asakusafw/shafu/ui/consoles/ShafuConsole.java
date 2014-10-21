@@ -18,6 +18,8 @@ package com.asakusafw.shafu.ui.consoles;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.IStatus;
@@ -31,6 +33,8 @@ import com.asakusafw.shafu.internal.ui.LogUtil;
 
 /**
  * Console for this plugin.
+ * @since 0.1.0
+ * @version 0.3.3
  */
 public final class ShafuConsole extends MessageConsole {
 
@@ -45,9 +49,13 @@ public final class ShafuConsole extends MessageConsole {
 
     private final Color errorColor;
 
-    private final MessageConsoleStream outputStream;
+    private final Color infoColor;
 
-    private final MessageConsoleStream errorStream;
+    private final ShafuOutputStream outputStream;
+
+    private final ShafuOutputStream errorStream;
+
+    private final ShafuOutputStream infoStream;
 
     /**
      * Creates a new instance.
@@ -57,12 +65,15 @@ public final class ShafuConsole extends MessageConsole {
         this.backgroundColor = createColor(255, 255, 255);
         this.outputColor = createColor(0, 0, 0);
         this.errorColor = createColor(255, 0, 0);
+        this.infoColor = createColor(0, 0, 255);
 
         this.setBackground(backgroundColor);
         this.outputStream = new ShafuOutputStream(this, Charset.defaultCharset());
         this.outputStream.setColor(outputColor);
         this.errorStream = new ShafuOutputStream(this, Charset.defaultCharset());
         this.errorStream.setColor(errorColor);
+        this.infoStream = new ShafuOutputStream(this, Charset.defaultCharset());
+        this.infoStream.setColor(infoColor);
     }
 
     /**
@@ -73,6 +84,7 @@ public final class ShafuConsole extends MessageConsole {
         context.withStandardInput(getStandardInputStream());
         context.withStandardOutput(getStandardOutputStream());
         context.withStandardError(getStandardErrorStream());
+        context.withInformationOutput(infoStream.toPrintWriter());
     }
 
     /**
@@ -150,6 +162,10 @@ public final class ShafuConsole extends MessageConsole {
         @Override
         public void setEncoding(String encoding) {
             throw new UnsupportedOperationException();
+        }
+
+        PrintWriter toPrintWriter() {
+            return new PrintWriter(new OutputStreamWriter(this, encoding), true);
         }
     }
 }

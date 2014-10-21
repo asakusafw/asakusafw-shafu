@@ -44,6 +44,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.gradle.tooling.BuildCancelledException;
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
@@ -148,7 +149,9 @@ final class GradleUtil {
     public static void checkCancel(IProgressMonitor monitor, OperationHandler<?> handler) throws CoreException {
         if (monitor.isCanceled()) {
             try {
-                handler.cancel();
+                if (handler.cancel()) {
+                    return;
+                }
             } catch (InterruptedException e) {
                 monitor.setCanceled(true);
             }
@@ -164,11 +167,14 @@ final class GradleUtil {
     public static GradleConnector createConnector(GradleContext context) {
         GradleConnector connector = GradleConnector.newConnector();
         connector.forProjectDirectory(context.getProjectDirectory().getAbsoluteFile());
+        String versionLabel;
         if (context.getGradleDistribution() != null) {
+            versionLabel = context.getGradleDistribution().toString();
             connector.useDistribution(context.getGradleDistribution());
         } else {
             String version = context.getGradleVersion();
             version = version == null ? GradleVersion.current().getVersion() : version;
+            versionLabel = version;
             URI distribution = toDistributionUri(version, context.isUseHttps());
             if (distribution != null) {
                 connector.useDistribution(distribution);
@@ -176,6 +182,9 @@ final class GradleUtil {
                 connector.useGradleVersion(version);
             }
         }
+        context.information(MessageFormat.format(
+                Messages.GradleUtil_infoPrepareDaemon,
+                versionLabel));
         if (context.getGradleUserHomeDir() != null) {
             connector.useGradleUserHomeDir(context.getGradleUserHomeDir().getAbsoluteFile());
         }
@@ -265,6 +274,39 @@ final class GradleUtil {
                 IoUtils.deleteQuietly(cancelFile);
             }
         }
+    }
+
+    /**
+     * Reports the occurred exception.
+     * @param context the current configuration
+     * @param exception the occurred exception
+     * @since 0.3.3
+     */
+    public static void reportException(GradleContext context, GradleConnectionException exception) {
+        if (exception == null) {
+            return;
+        }
+        context.information("--"); //$NON-NLS-1$
+        context.information(Messages.GradleUtil_infoReportException);
+        Throwable reason = findInformativeException(exception);
+        context.information(String.valueOf(reason));
+    }
+
+    private static Throwable findInformativeException(GradleConnectionException exception) {
+        for (Throwable current = exception; current != null; current = current.getCause()) {
+            if (current instanceof BuildCancelledException) {
+                return current;
+            }
+            String name = current.getClass().getName();
+            if (name.equals("org.gradle.api.BuildCancelledException")) { //$NON-NLS-1$
+                return current;
+            }
+        }
+        Throwable reason = exception.getCause();
+        if (reason != null) {
+            return reason;
+        }
+        return exception;
     }
 
     private static Properties copyProperties(Properties properties) {
@@ -430,9 +472,9 @@ final class GradleUtil {
             return latch.await(100, TimeUnit.MILLISECONDS);
         }
 
-        public void cancel() throws InterruptedException {
+        public boolean cancel() throws InterruptedException {
             cancellator.cancel();
-            latch.await(DEFAULT_SOFT_CANCELLATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+            return latch.await(DEFAULT_SOFT_CANCELLATION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         }
 
         public ProgressEvent takeProgressEvent() {

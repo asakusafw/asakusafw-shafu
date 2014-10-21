@@ -117,6 +117,7 @@ public class GradleBuildTask implements IRunnable {
                     monitor.setWorkRemaining(100);
                 }
                 if (handler.hasException()) {
+                    GradleUtil.reportException(configuration, handler.getException());
                     throw new GradleException(new Status(
                             IStatus.WARNING,
                             Activator.PLUGIN_ID,

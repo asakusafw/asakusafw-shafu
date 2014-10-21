@@ -18,17 +18,21 @@ package com.asakusafw.shafu.core.gradle;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.runtime.IStatus;
+
+import com.asakusafw.shafu.internal.core.LogUtil;
 
 /**
  * Represents a Gradle context.
  * @since 0.1.0
- * @version 0.3.1
+ * @version 0.3.3
  */
 public final class GradleContext {
 
@@ -54,6 +58,8 @@ public final class GradleContext {
     volatile OutputStream standardOutputOrNull;
 
     volatile OutputStream standardErrorOutputOrNull;
+
+    private volatile PrintWriter informationOutputOrNull;
 
     volatile List<String> jvmArguments = new ArrayList<String>();
 
@@ -255,6 +261,31 @@ public final class GradleContext {
     public GradleContext withStandardError(OutputStream stream) {
         this.standardErrorOutputOrNull = stream;
         return this;
+    }
+
+    /**
+     * Sets the information output for build process.
+     * @param stream the target stream
+     * @return this
+     * @since 0.3.3
+     */
+    public GradleContext withInformationOutput(PrintWriter stream) {
+        this.informationOutputOrNull = stream;
+        return this;
+    }
+
+    /**
+     * Print information message into the current context console.
+     * @param message the information message
+     * @since 0.3.3
+     */
+    public void information(String message) {
+        PrintWriter writer = informationOutputOrNull;
+        if (writer != null) {
+            writer.println(message);
+        } else {
+            LogUtil.log(IStatus.INFO, message);
+        }
     }
 
     /**
