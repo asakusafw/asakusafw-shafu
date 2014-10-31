@@ -55,10 +55,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 import org.eclipse.ui.ide.IDE.SharedImages;
+import org.gradle.tooling.model.DomainObjectSet;
+import org.gradle.tooling.model.GradleTask;
 import org.gradle.tooling.model.eclipse.EclipseProject;
 
 import com.asakusafw.shafu.core.gradle.GradleBuildTask;
@@ -310,7 +313,7 @@ public class SelectGradleProjectsPage extends WizardPage {
             if (entry.isEnabled()) {
                 sawEnabled = true;
             }
-            viewer.setChecked(entry, entry.isNameConflict() == false);
+            viewer.setChecked(entry, entry.isEnabled());
         }
         if (sawEnabled == false) {
             setErrorMessage(null);
@@ -379,13 +382,28 @@ public class SelectGradleProjectsPage extends WizardPage {
         }
 
         for (ProjectEntry entry : results) {
+            if (isEclipseSupported(entry)) {
+                entry.setSupported(true);
+            }
             if (projectLocation.contains(entry.getLocation())) {
                 entry.setLocationConflict(true);
-            } else if (projectNames.contains(entry.getName())) {
+            }
+            if (projectNames.contains(entry.getName())) {
                 entry.setNameConflict(true);
             }
         }
         return results;
+    }
+
+    private boolean isEclipseSupported(ProjectEntry entry) {
+        EclipseProject model = entry.getModel();
+        DomainObjectSet<? extends GradleTask> tasks = model.getGradleProject().getTasks();
+        for (GradleTask task : tasks) {
+            if (task.getName().equals(GradleBuildTask.TASK_CONFIGURE_ECLIPSE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     ShafuConsole getConsole() {
@@ -447,12 +465,18 @@ public class SelectGradleProjectsPage extends WizardPage {
 
         private final EclipseProject model;
 
+        private boolean supported = false;
+
         private boolean nameConflict = false;
 
         private boolean locationConflict = false;
 
         ProjectEntry(EclipseProject model) {
             this.model = model;
+        }
+
+        public EclipseProject getModel() {
+            return model;
         }
 
         public boolean isRoot() {
@@ -471,16 +495,20 @@ public class SelectGradleProjectsPage extends WizardPage {
             return model.getName();
         }
 
+        public boolean isImported() {
+            return this.nameConflict || this.locationConflict;
+        }
+
+        public boolean isSupported() {
+            return supported;
+        }
+
         public boolean isEnabled() {
-            return this.nameConflict == false && this.locationConflict == false;
+            return supported && isImported() == false;
         }
 
-        public boolean isNameConflict() {
-            return nameConflict;
-        }
-
-        public boolean isLocationConflict() {
-            return locationConflict;
+        public void setSupported(boolean supported) {
+            this.supported = supported;
         }
 
         public void setNameConflict(boolean conflict) {
@@ -489,6 +517,11 @@ public class SelectGradleProjectsPage extends WizardPage {
 
         public void setLocationConflict(boolean conflict) {
             this.locationConflict = conflict;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s (@%s)", model.getName(), model.getProjectDirectory());
         }
     }
 
@@ -507,10 +540,14 @@ public class SelectGradleProjectsPage extends WizardPage {
         @Override
         public Image getImage(Object element) {
             ProjectEntry entry = (ProjectEntry) element;
-            if (entry.isLocationConflict()) {
-                return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT);
+            if (entry.isSupported()) {
+                if (entry.isImported()) {
+                    return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT);
+                } else {
+                    return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT_CLOSED);
+                }
             }
-            return PlatformUI.getWorkbench().getSharedImages().getImage(SharedImages.IMG_OBJ_PROJECT_CLOSED);
+            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FOLDER);
         }
 
         @Override
