@@ -59,6 +59,15 @@
                   value="jarBatchapp">
             </parameter>
          </command>
+         <command
+               commandId="com.asakusafw.shafu.ui.buildProject"
+               label="%menu.assemble.label"
+               style="push">
+            <parameter
+                  name="taskNames"
+                  value="assemble">
+            </parameter>
+         </command>
       </menuContribution>
    </extension>
    <extension
