@@ -20,7 +20,11 @@ import org.eclipse.osgi.util.NLS;
 final class Messages extends NLS {
     private static final String BUNDLE_NAME = "com.asakusafw.shafu.internal.asakusafw.preferences.messages"; //$NON-NLS-1$
     public static String ShafuAsakusaPreferencePage_errorUrlInvalid;
+    public static String ShafuAsakusaPreferencePage_groupSettingsView;
+    public static String ShafuAsakusaPreferencePage_itemAsakusaHome;
     public static String ShafuAsakusaPreferencePage_itemCatalogUrl;
+    public static String ShafuAsakusaPreferencePage_itemHadoopCommand;
+    public static String ShafuAsakusaPreferencePage_valuePathNotAvailable;
     static {
         // initialize resource bundle
         NLS.initializeMessages(BUNDLE_NAME, Messages.class);

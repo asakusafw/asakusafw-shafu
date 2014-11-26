@@ -17,6 +17,7 @@ package com.asakusafw.shafu.internal.asakusafw.preferences;
 
 import static com.asakusafw.shafu.internal.asakusafw.preferences.ShafuAsakusaPreferenceConstants.*;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -28,12 +29,16 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.asakusafw.shafu.internal.asakusafw.Activator;
+import com.asakusafw.shafu.internal.asakusafw.util.AsakusaFrameworkInfo;
 import com.asakusafw.shafu.ui.fields.FieldPreferencePage;
 import com.asakusafw.shafu.ui.fields.PreferenceField;
 
@@ -56,6 +61,7 @@ public class ShafuAsakusaPreferencePage extends FieldPreferencePage implements I
         pane.setLayout(layout);
 
         createUrlField(pane, KEY_CATALOG_URL, 1, Messages.ShafuAsakusaPreferencePage_itemCatalogUrl);
+        createSettingsView(pane);
 
         return pane;
     }
@@ -109,5 +115,53 @@ public class ShafuAsakusaPreferencePage extends FieldPreferencePage implements I
                 }
             }
         });
+    }
+
+    private void createSettingsView(Composite parent) {
+        Group group = new Group(parent, SWT.NONE);
+        group.setText(Messages.ShafuAsakusaPreferencePage_groupSettingsView);
+        group.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .indent(0, convertHeightInCharsToPixels(1) / 2)
+                .grab(true, false)
+                .create());
+
+        group.setLayout(new GridLayout(2, false));
+        addPathSettingView(
+                group,
+                Messages.ShafuAsakusaPreferencePage_itemAsakusaHome,
+                AsakusaFrameworkInfo.findInstallation());
+        addPathSettingView(
+                group,
+                Messages.ShafuAsakusaPreferencePage_itemHadoopCommand,
+                AsakusaFrameworkInfo.findHadoopCommand());
+    }
+
+    private void addPathSettingView(Group group, String title, File path) {
+        Label label = new Label(group, SWT.NONE);
+        label.setText(title + ':');
+        label.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .grab(true, false)
+                .span(2, 1)
+                .create());
+        final Text text = new Text(group, SWT.BORDER);
+        text.setText(path == null ? Messages.ShafuAsakusaPreferencePage_valuePathNotAvailable : path.getPath());
+        text.setEditable(false);
+        text.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .grab(true, false)
+                .span(2, 1)
+                .create());
+        if (path == null) {
+            text.setEnabled(false);
+        } else {
+            text.addListener(SWT.FOCUSED, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    text.setSelection(0, text.getText().length());
+                }
+            });
+        }
     }
 }
