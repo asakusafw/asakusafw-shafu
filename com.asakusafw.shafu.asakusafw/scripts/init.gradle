@@ -1,3 +1,5 @@
+import org.gradle.api.artifacts.Configuration
+
 allprojects { Project project ->
     // make 'build/generated-sources/*' optional source directories
     project.plugins.matching { it == project.plugins.findPlugin('eclipse') }.all {
@@ -20,6 +22,47 @@ allprojects { Project project ->
                         it.@value = 'true'
                     }
                 }
+            }
+        }
+    }
+
+    // enables emulation mode in testing
+    project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+        def key = 'com.asakusafw.shafu.asakusafw.enableEmulationMode'
+        def value = System.getProperty(key, 'false')
+        if (value == null || value.equalsIgnoreCase('true') == false) {
+            return
+        }
+        project.afterEvaluate {
+            logger.info "enabling emulation mode for Asakusa Framework: ${project.name}"
+            String version
+            try {
+                version = project.asakusafw.asakusafwVersion.toString()
+            } catch (Exception e) {
+                logger.info "failed to resolve asakusafwVersion: ${project.name}", e
+                return
+            }
+            project.configurations {
+                shafuEmulationModeExtension
+            }
+            project.dependencies {
+                shafuEmulationModeExtension "com.asakusafw.sdk:asakusa-sdk-test-emulation:${version}"
+            }
+            logger.info "try resolving modules for emulation mode: ${project.name}"
+            Configuration conf = project.configurations.shafuEmulationModeExtension
+            try {
+                conf.resolve()
+                if (conf.state != Configuration.State.RESOLVED) {
+                    throw new IllegalStateException()
+                }
+            } catch (Exception e) {
+                logger.info "emulation support module is not provided (${version}): ${project.name}"
+                logger.debug "state of ${conf.name}: ${conf.state}", e
+                return
+            }
+            logger.info "activating modules for emulation mode: ${project.name}"
+            project.configurations.testRuntime {
+                extendsFrom project.configurations.shafuEmulationModeExtension
             }
         }
     }

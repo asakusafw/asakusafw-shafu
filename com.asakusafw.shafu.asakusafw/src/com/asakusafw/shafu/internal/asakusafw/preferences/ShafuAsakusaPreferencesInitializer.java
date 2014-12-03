@@ -33,5 +33,6 @@ public class ShafuAsakusaPreferencesInitializer extends AbstractPreferenceInitia
         LogUtil.debug("Initializing Preferences"); //$NON-NLS-1$
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
         prefs.setDefault(KEY_CATALOG_URL, DEFAULT_CATALOG_URL);
+        prefs.setDefault(KEY_EMULATION_MODE, DEFAULT_EMULATION_MODE);
     }
 }
