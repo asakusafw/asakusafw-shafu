@@ -6,20 +6,32 @@ allprojects { Project project ->
         project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
             logger.info "Configuring Eclipse for Asakusa Framework: ${project.name}"
             def conv = project.asakusafw
+            def modelgenSrc = project.relativePath(conv.modelgen.modelgenSourceDirectory ?: '').replace('\\', '/')
+            def annotationSrc = project.relativePath(conv.javac.annotationSourceDirectory ?: '').replace('\\', '/')
             project.eclipse.classpath {
                 file.withXml { provider ->
                     provider.asNode().children().findAll{
                         it.name() == 'classpathentry' \
                         && it.@kind == 'src' \
                         && it.@path \
-                        && ( conv.modelgen.modelgenSourceDirectory && it.@path == project.relativePath(conv.modelgen.modelgenSourceDirectory)
-                          || conv.javac.annotationSourceDirectory && it.@path == project.relativePath(conv.javac.annotationSourceDirectory))
+                        && ( it.@path == modelgenSrc || it.@path == annotationSrc )
                     }.collect {
                         it.children().find { it.name() == 'attributes' } ?: it.appendNode('attributes')
                     }.collect {
                         it.children().find { it.name() == 'attribute' && it.@name == 'optional' } ?: it.appendNode('attribute', [name: 'optional'])
                     }.each {
                         it.@value = 'true'
+                    }
+                    provider.asNode().children().findAll{
+                        it.name() == 'classpathentry' \
+                        && it.@kind == 'lib' \
+                        && it.@path
+                    }.collect {
+                        it.children().find { it.name() == 'attributes' } ?: it.appendNode('attributes')
+                    }.collect {
+                        it.children().find { it.name() == 'attribute' && it.@name == 'source_encoding' } ?: it.appendNode('attribute', [name: 'source_encoding'])
+                    }.each {
+                        it.@value = 'UTF-8'
                     }
                 }
             }
