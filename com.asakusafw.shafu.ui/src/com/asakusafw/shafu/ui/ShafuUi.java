@@ -35,6 +35,7 @@ import com.asakusafw.shafu.core.gradle.GradleContext;
 import com.asakusafw.shafu.core.gradle.GradleInspectTask;
 import com.asakusafw.shafu.core.gradle.RefreshTask;
 import com.asakusafw.shafu.core.util.RunnableBuilder;
+import com.asakusafw.shafu.core.util.RuntimeUtils;
 import com.asakusafw.shafu.internal.ui.Activator;
 import com.asakusafw.shafu.internal.ui.consoles.ShafuConsoleManager;
 import com.asakusafw.shafu.internal.ui.dialogs.ConsoleDialog;
@@ -71,7 +72,7 @@ public final class ShafuUi {
      * @since 0.2.4
      */
     public static void scheduleTasks(IProject project, List<String> tasks, List<String> arguments) {
-        GradleContext configuration = ShafuUi.createContext(project.getLocation().toFile(), arguments);
+        GradleContext configuration = ShafuUi.createContext(project, project.getLocation().toFile(), arguments);
         ShafuConsole console = ShafuUi.getGlobalConsole(true);
         console.clearConsole();
         console.attachTo(configuration);
@@ -91,10 +92,10 @@ public final class ShafuUi {
      * @see GradleInspectTask
      */
     public static GradleContext createContext(File projectDirectory) {
-        return createContext(projectDirectory, Collections.<String>emptyList());
+        return createContext(null, projectDirectory, Collections.<String>emptyList());
     }
 
-    private static GradleContext createContext(File projectDirectory, List<String> arguments) {
+    private static GradleContext createContext(IProject project, File projectDirectory, List<String> arguments) {
         GradleContext context = new GradleContext(projectDirectory);
 
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
@@ -104,7 +105,7 @@ public final class ShafuUi {
         Map<String, String> projectProps = decodeToMap(prefs.getString(KEY_PROJECT_PROPERTIES));
         Map<String, String> systemProps = decodeToMap(prefs.getString(KEY_SYSTEM_PROPERTIES));
         File gradleUserHome = decodeFile(prefs.getString(KEY_GRADLE_USER_HOME));
-        File javaHome = decodeFile(prefs.getString(KEY_JAVA_HOME));
+        File javaHome = computeJavaHome(project, prefs);
         String gradleVersion = decodeVersion(prefs.getString(KEY_GRADLE_VERSION));
         URI gradleDistribution = decodeUri(prefs.getString(KEY_GRADLE_DISTRIBUTION));
 
@@ -125,12 +126,25 @@ public final class ShafuUi {
         for (Map.Entry<String, String> entry : systemProps.entrySet()) {
             context.withJvmArguments(String.format("-D%s=%s", entry.getKey(), entry.getValue())); //$NON-NLS-1$
         }
+
         context.setGradleUserHomeDir(gradleUserHome);
         context.setJavaHomeDir(javaHome);
         context.setGradleVersion(gradleVersion);
         context.setGradleDistribution(gradleDistribution);
 
         return context;
+    }
+
+    private static File computeJavaHome(IProject project, IPreferenceStore prefs) {
+        File javaHome = decodeFile(prefs.getString(KEY_JAVA_HOME));
+        if (javaHome != null) {
+            return javaHome;
+        }
+        File javaHomeCandidate = RuntimeUtils.getJavaHome(project);
+        if (javaHomeCandidate != null && RuntimeUtils.isJavaDevelopmentKitLike(javaHomeCandidate)) {
+            return javaHomeCandidate;
+        }
+        return null;
     }
 
     private static boolean appearsIn(GradleOption[] options, List<String> arguments) {
