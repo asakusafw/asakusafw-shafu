@@ -69,6 +69,23 @@
             </parameter>
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:com.asakusafw.shafu.ui.contextMenu?after=beginEnvironment">
+         <menu
+               id="com.asakusafw.shafu.asakusafw.contextMenu.setup"
+               label="%menu.configureDevelopmentEnvironment.label">
+            <command
+                  commandId="com.asakusafw.shafu.ui.buildProject"
+                  label="%menu.installAsakusafw.label"
+                  style="push">
+               <parameter
+                     name="taskNames"
+                     value="installAsakusafw">
+               </parameter>
+            </command>
+         </menu>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

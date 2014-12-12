@@ -122,6 +122,12 @@
                   visible="true">
             </separator>
             <separator
+                  name="beginEnvironment">
+            </separator>
+            <separator
+                  name="endEnvironment">
+            </separator>
+            <separator
                   name="beginProject"
                   visible="true">
             </separator>
