@@ -78,4 +78,41 @@ allprojects { Project project ->
             }
         }
     }
+
+    // adding a task for installing batchapps
+    project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+        project.afterEvaluate {
+            project.tasks.create('shafuInstallBatchapps') {
+                description 'installs Asakusa batchapps into development environment'
+                dependsOn project.tasks.compileBatchapp
+                doLast {
+                    File batchapps
+                    if (System.getenv('ASAKUSA_BATCHAPPS_HOME') != null) {
+                        batchapps = new File(System.getenv('ASAKUSA_BATCHAPPS_HOME'))
+                    } else if (System.getenv('ASAKUSA_HOME') != null) {
+                        File home = new File(System.getenv('ASAKUSA_HOME'))
+                        if (home.exists() == false) {
+                            logger.error 'Asakusa Framework is not installed'
+                            throw new IllegalStateException('Asakusa Framework is not installed')
+                        }
+                        batchapps = new File(home, 'batchapps')
+                    } else {
+                        logger.error 'ASAKUSA_HOME is not defined'
+                        throw new IllegalStateException('ASAKUSA_HOME is not defined')
+                    }
+                    project.tasks.compileBatchapp.outputDirectory.eachDir { File app ->
+                        File target = new File(batchapps, app.getName())
+                        if (target.exists()) {
+                            project.delete target
+                        }
+                        logger.lifecycle "installing batchapp: ${target}"
+                        project.copy {
+                            from app
+                            into target
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

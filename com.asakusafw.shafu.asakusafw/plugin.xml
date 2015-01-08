@@ -84,6 +84,15 @@
                      value="installAsakusafw">
                </parameter>
             </command>
+            <command
+                  commandId="com.asakusafw.shafu.ui.buildProject"
+                  label="%menu.installBatchapps.label"
+                  style="push">
+               <parameter
+                     name="taskNames"
+                     value="shafuInstallBatchapps">
+               </parameter>
+            </command>
          </menu>
       </menuContribution>
    </extension>
