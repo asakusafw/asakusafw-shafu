@@ -1,9 +1,20 @@
 import org.gradle.api.artifacts.Configuration
 
 allprojects { Project project ->
+    def withAsakusa = { cl ->
+        if (GradleVersion.current() >= GradleVersion.version('2.0')) {
+            project.plugins.withId('asakusafw') {
+                cl.call()
+            }
+        } else {
+            project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+                cl.call()
+            }
+        }
+    }
     // make 'build/generated-sources/*' optional source directories
-    project.plugins.matching { it == project.plugins.findPlugin('eclipse') }.all {
-        project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+    project.plugins.withType(EclipsePlugin) {
+        withAsakusa {
             logger.info "Configuring Eclipse for Asakusa Framework: ${project.name}"
             def conv = project.asakusafw
             def modelgenSrc = project.relativePath(conv.modelgen.modelgenSourceDirectory ?: '').replace('\\', '/')
@@ -39,7 +50,7 @@ allprojects { Project project ->
     }
 
     // enables emulation mode in testing
-    project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+    withAsakusa {
         def key = 'com.asakusafw.shafu.asakusafw.enableEmulationMode'
         def value = System.getProperty(key, 'false')
         if (value == null || value.equalsIgnoreCase('true') == false) {
@@ -80,7 +91,7 @@ allprojects { Project project ->
     }
 
     // adding a task for installing batchapps
-    project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+    withAsakusa {
         project.afterEvaluate {
             project.tasks.create('shafuInstallBatchapps') {
                 description 'installs Asakusa batchapps into development environment'
