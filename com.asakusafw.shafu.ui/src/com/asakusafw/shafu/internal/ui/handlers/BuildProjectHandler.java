@@ -15,6 +15,7 @@
  */
 package com.asakusafw.shafu.internal.ui.handlers;
 
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+import com.asakusafw.shafu.core.gradle.GradleContext;
 import com.asakusafw.shafu.core.util.CommandLineUtil;
 import com.asakusafw.shafu.internal.ui.Activator;
 import com.asakusafw.shafu.internal.ui.LogUtil;
@@ -65,9 +67,20 @@ public class BuildProjectHandler extends AbstractHandler {
         if (PlatformUI.getWorkbench().saveAllEditors(true) == false) {
             return null;
         }
-        List<String> tasks = CommandLineUtil.parseGradleTaskNames(commandLine);
         List<String> arguments = CommandLineUtil.parseGradleBuildArguments(commandLine);
-        ShafuUi.scheduleTasks(project, tasks, arguments);
+        GradleContext context = ShafuUi.createContext(project, arguments);
+        String gradleVersion = CommandLineUtil.parseGradleVersion(commandLine);
+        if (gradleVersion != null) {
+            // like URL
+            if (gradleVersion.indexOf(':') >= 0) {
+                context.setGradleDistribution(URI.create(gradleVersion));
+            } else {
+                context.setGradleDistribution(null);
+                context.setGradleVersion(gradleVersion);
+            }
+        }
+        List<String> tasks = CommandLineUtil.parseGradleTaskNames(commandLine);
+        ShafuUi.scheduleTasks(project, context, tasks);
         return null;
     }
 

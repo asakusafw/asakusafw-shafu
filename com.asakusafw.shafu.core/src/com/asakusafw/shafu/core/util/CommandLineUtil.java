@@ -22,12 +22,15 @@ import java.util.List;
 /**
  * Utilities for command lines.
  * @since 0.2.4
+ * @version 0.4.3
  */
 public final class CommandLineUtil {
 
     private static final char ESCAPE = '\\';
 
     private static final char SEPARATOR_CHAR = '#';
+
+    private static final char VERSION_CHAR = '@';
 
     private static final String SEPARATOR = String.valueOf(SEPARATOR_CHAR);
 
@@ -37,7 +40,7 @@ public final class CommandLineUtil {
      * @return the parsed tokens
      */
     public static List<String> parseGradleTaskNames(String commandLine) {
-        List<String> tokens = parseCommandLineTokens(commandLine);
+        List<String> tokens = removeGradleVersion(parseCommandLineTokens(commandLine));
         int separatorAt = findSeparator(tokens);
         if (separatorAt < 0) {
             return tokens;
@@ -52,13 +55,42 @@ public final class CommandLineUtil {
      * @return the parsed tokens
      */
     public static List<String> parseGradleBuildArguments(String commandLine) {
-        List<String> tokens = parseCommandLineTokens(commandLine);
+        List<String> tokens = removeGradleVersion(parseCommandLineTokens(commandLine));
         int separatorAt = findSeparator(tokens);
         if (separatorAt < 0) {
             return Collections.emptyList();
         } else {
             return tokens.subList(separatorAt + 1, tokens.size());
         }
+    }
+
+    /**
+     * Extracts and returns the instant Gradle version from the command line string.
+     * @param commandLine the command line string
+     * @return the parsed version, or {@code null} if it is not found
+     * @since 0.4.3
+     */
+    public static String parseGradleVersion(String commandLine) {
+        List<String> tokens = parseCommandLineTokens(commandLine);
+        if (tokens.isEmpty()) {
+            return null;
+        }
+        String first = tokens.get(0);
+        return extractGradleVersion(first);
+    }
+
+    private static List<String> removeGradleVersion(List<String> tokens) {
+        if (tokens.isEmpty() || extractGradleVersion(tokens.get(0)) == null) {
+            return tokens;
+        }
+        return new ArrayList<String>(tokens.subList(1, tokens.size()));
+    }
+
+    private static String extractGradleVersion(String first) {
+        if (first.length() >= 2 && first.charAt(0) == VERSION_CHAR) {
+            return first.substring(1);
+        }
+        return null;
     }
 
     /**
