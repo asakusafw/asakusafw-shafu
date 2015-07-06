@@ -47,7 +47,8 @@ import com.asakusafw.shafu.ui.consoles.ShafuConsole;
 
 /**
  * Core APIs of Shafu UI Plug-in.
- * @version 0.2.4
+ * @since 0.1.0
+ * @version 0.4.3
  */
 public final class ShafuUi {
 
@@ -73,6 +74,17 @@ public final class ShafuUi {
      */
     public static void scheduleTasks(IProject project, List<String> tasks, List<String> arguments) {
         GradleContext configuration = ShafuUi.createContext(project, project.getLocation().toFile(), arguments);
+        scheduleTasks(project, configuration, tasks);
+    }
+
+    /**
+     * Schedules the Gradle tasks.
+     * @param project the target project
+     * @param configuration the Gradle configuration
+     * @param tasks the target tasks
+     * @since 0.4.3
+     */
+    public static void scheduleTasks(IProject project, GradleContext configuration, List<String> tasks) {
         ShafuConsole console = ShafuUi.getGlobalConsole(true);
         console.clearConsole();
         console.attachTo(configuration);
@@ -93,6 +105,19 @@ public final class ShafuUi {
      */
     public static GradleContext createContext(File projectDirectory) {
         return createContext(null, projectDirectory, Collections.<String>emptyList());
+    }
+
+    /**
+     * Creates a new {@link GradleContext} configured by Shafu UI.
+     * @param project the target project
+     * @param arguments the build arguments
+     * @return the created {@link GradleContext}
+     * @see GradleBuildTask
+     * @see GradleInspectTask
+     * @since 0.4.3
+     */
+    public static GradleContext createContext(IProject project, List<String> arguments) {
+        return createContext(project, project.getLocation().toFile(), Collections.<String>emptyList());
     }
 
     private static GradleContext createContext(IProject project, File projectDirectory, List<String> arguments) {
