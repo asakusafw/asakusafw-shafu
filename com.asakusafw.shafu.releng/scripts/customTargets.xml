@@ -65,21 +65,28 @@
 	<!-- ===================================================================== -->
 	<target name="preSetup">
 		<script manager="javax" language="javascript">
-		    importClass(java.lang.AssertionError);
-		    importClass(java.io.File);
-		    var root = new File(project.getProperty("buildDirectory"));
-		    var features = new File(root, 'features').listFiles();
-		    for (var i in features) {
-		        var f = new File(features[i], "feature.xml");
-		        project.setProperty("targetFile", f.getAbsolutePath());
-		        project.executeTarget("-reversion-feature");
-		    }
-		    var plugins = new File(root, 'plugins').listFiles();
-		    for (var i in plugins) {
-		        var f = plugins[i];
-		        project.setProperty("targetFile", f.getAbsolutePath());
-		        project.executeTarget("-reversion-plugin");
-		    }
+<![CDATA[
+try {
+    load("nashorn:mozilla_compat.js");
+} catch (e) {
+    // this may already run in Rhino
+}
+importClass(java.lang.AssertionError);
+importClass(java.io.File);
+var root = new File(project.getProperty("buildDirectory"));
+var features = new File(root, 'features').listFiles();
+for (var i in features) {
+    var f = new File(features[i], "feature.xml");
+    project.setProperty("targetFile", f.getAbsolutePath());
+    project.executeTarget("-reversion-feature");
+}
+var plugins = new File(root, 'plugins').listFiles();
+for (var i in plugins) {
+    var f = plugins[i];
+    project.setProperty("targetFile", f.getAbsolutePath());
+    project.executeTarget("-reversion-plugin");
+}
+]]>
 		</script>
 	</target>
 
