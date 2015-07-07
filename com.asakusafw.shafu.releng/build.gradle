@@ -30,8 +30,13 @@ def targetDropinName = 'jinrikisha'
 def eclipseUrl = System.getProperty('eclipse.download', 'http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-win32.zip')
 
 def compilerCompliance = '1.6'
+def customBootClasspath = null
 def pdeDirectory = new File(buildDir, 'pde')
 def toolsDirectory = new File(buildDir, 'pde-tools')
+
+if (System.getProperty('compiler.bootclasspath') != null) {
+    customBootClasspath = project.file(System.getProperty('compiler.bootclasspath'))
+}
 
 task clean << {
     delete(buildDir)
@@ -137,6 +142,9 @@ task pdeBuild(dependsOn: [prepareTools, copySources]) {
                         '-DjavacSource=' + compilerCompliance,
                         '-DjavacTarget=' + compilerCompliance,
                     ]
+                    if (customBootClasspath != null) {
+                        jvmArgs("-Dbootclasspath=${customBootClasspath.absolutePath}")
+                    }
                     args = [
                         '-data',
                         new File(eclipseWorking, 'data').absolutePath,
