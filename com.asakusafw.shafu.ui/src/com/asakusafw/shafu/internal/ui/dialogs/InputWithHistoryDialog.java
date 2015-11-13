@@ -95,7 +95,7 @@ public class InputWithHistoryDialog extends Dialog {
                 .hint(IDialogConstants.MINIMUM_MESSAGE_AREA_WIDTH, SWT.DEFAULT)
                 .create());
 
-        this.valueField = new Combo(pane, SWT.NONE);
+        this.valueField = new Combo(pane, SWT.DROP_DOWN);
         valueField.setItems(history.toArray(new String[history.size()]));
         if (defaultValue != null) {
             valueField.setText(defaultValue);
@@ -118,7 +118,6 @@ public class InputWithHistoryDialog extends Dialog {
 
     void onModify() {
         this.result = valueField.getText();
-        valueField.setListVisible(false);
     }
 
     /**
