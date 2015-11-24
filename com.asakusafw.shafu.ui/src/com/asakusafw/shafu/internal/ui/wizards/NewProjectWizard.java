@@ -26,7 +26,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.resources.IProject;
@@ -279,7 +281,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
                 dialog.setInitialSelections(new Object[] { paths.get(0) });
                 dialog.setInput(paths);
                 dialog.setContentProvider(ArrayContentProvider.getInstance());
-                dialog.setLabelProvider(new LabelProvider());
+                dialog.setLabelProvider(new ShortenLabelProvider(paths));
                 if (dialog.open() != Window.OK) {
                     return;
                 }
@@ -372,6 +374,96 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         BUILD,
 
         DEPLOY,
+    }
+
+    private static class ShortenLabelProvider extends LabelProvider {
+
+        private final Map<IPath, IPath> resolved = new HashMap<IPath, IPath>();
+
+        public ShortenLabelProvider(List<? extends IPath> paths) {
+            if (paths.size() >= 2) {
+                int min = getMinimumSize(paths);
+                int prefix = getCommonPrefixSize(paths);
+                int suffix = getCommonSuffixSize(paths);
+                if (prefix + suffix < min) {
+                    for (IPath path : paths) {
+                        resolved.put(path, path.removeFirstSegments(prefix).removeLastSegments(suffix));
+                    }
+                }
+            }
+        }
+
+        @Override
+        public String getText(Object element) {
+            IPath path = (IPath) element;
+            if (path == null) {
+                return null;
+            }
+            IPath result = resolved.get(path);
+            if (result == null) {
+                result = path;
+            }
+            return result.toPortableString();
+        }
+
+        private int getMinimumSize(List<? extends IPath> paths) {
+            int min = paths.get(0).segmentCount();
+            for (IPath path : paths) {
+                min = Math.min(min, path.segmentCount());
+            }
+            return min;
+        }
+
+        private int getCommonPrefixSize(List<? extends IPath> paths) {
+            IPath first = paths.get(0);
+            int commonSize = first.segmentCount();
+            for (IPath path : paths) {
+                if (commonSize == 0) {
+                    break;
+                }
+                commonSize = getCommonPrefixSize(commonSize, first, path);
+            }
+            return commonSize;
+        }
+
+        private int getCommonSuffixSize(List<? extends IPath> paths) {
+            assert paths.size() >= 2;
+            IPath first = paths.get(0);
+            int commonSize = first.segmentCount();
+            for (IPath path : paths) {
+                if (commonSize == 0) {
+                    break;
+                }
+                commonSize = getCommonSuffixSize(commonSize, first, path);
+            }
+            return commonSize;
+        }
+
+        private int getCommonPrefixSize(int max, IPath a, IPath b) {
+            int count = Math.min(max, Math.min(a.segmentCount(), b.segmentCount()));
+            if (count == 0) {
+                return 0;
+            }
+            for (int i = 0; i < count; i++) {
+                if (a.segment(i).equals(b.segment(i)) == false) {
+                    return i;
+                }
+            }
+            return count;
+        }
+
+        private int getCommonSuffixSize(int max, IPath a, IPath b) {
+            int count = Math.min(max, Math.min(a.segmentCount(), b.segmentCount()));
+            if (count == 0) {
+                return 0;
+            }
+            for (int i = count - 1; i >= 0; i--) {
+                if (a.segment(i).equals(b.segment(i)) == false) {
+                    return i;
+                }
+            }
+            return count;
+        }
     }
 
     private static class Archive implements Closeable {
