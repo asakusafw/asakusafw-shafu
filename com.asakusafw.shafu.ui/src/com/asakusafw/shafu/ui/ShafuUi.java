@@ -117,7 +117,7 @@ public final class ShafuUi {
      * @since 0.4.3
      */
     public static GradleContext createContext(IProject project, List<String> arguments) {
-        return createContext(project, project.getLocation().toFile(), Collections.<String>emptyList());
+        return createContext(project, project.getLocation().toFile(), arguments);
     }
 
     private static GradleContext createContext(IProject project, File projectDirectory, List<String> arguments) {
