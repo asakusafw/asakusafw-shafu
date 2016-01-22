@@ -387,7 +387,11 @@ public class NewProjectWizard extends Wizard implements INewWizard {
                 int suffix = getCommonSuffixSize(paths);
                 if (prefix + suffix < min) {
                     for (IPath path : paths) {
-                        resolved.put(path, path.removeFirstSegments(prefix).removeLastSegments(suffix));
+                        IPath r = path.removeFirstSegments(prefix).removeLastSegments(suffix);
+                        if (r.getDevice() != null && r.isAbsolute() == false) {
+                            r = r.setDevice(null);
+                        }
+                        resolved.put(path, r);
                     }
                 }
             }
