@@ -1,6 +1,6 @@
 defaultTasks 'cleanLibraries', 'copyLibraries'
 
-def gradleVersion = '2.8'
+def gradleVersion = '2.11'
 
 def classpathDestinationDir = file('lib')
 def sourceDestinationDir = file('libsrc')
@@ -20,13 +20,13 @@ configurations {
 
 dependencies {
     pluginClasspath "org.gradle:gradle-tooling-api:${gradleVersion}"
-    pluginClasspath "org.slf4j:slf4j-simple:1.7.13"
-    pluginClasspath "org.slf4j:jcl-over-slf4j:1.7.13"
+    pluginClasspath "org.slf4j:slf4j-simple:1.7.16"
+    pluginClasspath "org.slf4j:jcl-over-slf4j:1.7.16"
     pluginClasspath("org.apache.commons:commons-compress:1.10") {
         exclude module: 'xz'
         exclude module: 'commons-logging'
     }
-    pluginClasspath("org.apache.httpcomponents:httpclient:4.3.6") {
+    pluginClasspath("org.apache.httpcomponents:httpclient:4.4.1") {
         exclude module: 'commons-logging'
     }
     pluginSources "org.gradle:gradle-tooling-api:${gradleVersion}:sources"
