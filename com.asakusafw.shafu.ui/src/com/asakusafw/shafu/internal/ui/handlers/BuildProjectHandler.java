@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.asakusafw.shafu.core.gradle.GradleContext;
-import com.asakusafw.shafu.core.util.CommandLineUtil;
+import com.asakusafw.shafu.core.util.GradleArguments;
 import com.asakusafw.shafu.internal.ui.Activator;
 import com.asakusafw.shafu.internal.ui.LogUtil;
 import com.asakusafw.shafu.internal.ui.dialogs.InputWithHistoryDialog;
@@ -67,20 +67,18 @@ public class BuildProjectHandler extends AbstractHandler {
         if (PlatformUI.getWorkbench().saveAllEditors(true) == false) {
             return null;
         }
-        List<String> arguments = CommandLineUtil.parseGradleBuildArguments(commandLine);
-        GradleContext context = ShafuUi.createContext(project, arguments);
-        String gradleVersion = CommandLineUtil.parseGradleVersion(commandLine);
-        if (gradleVersion != null) {
+        GradleArguments arguments = GradleArguments.parse(commandLine);
+        GradleContext context = ShafuUi.createContext(project, arguments.getGradleOptions());
+        if (arguments.getGradleVersion() != null) {
             // like URL
-            if (gradleVersion.indexOf(':') >= 0) {
-                context.setGradleDistribution(URI.create(gradleVersion));
+            if (arguments.getGradleVersion().indexOf(':') >= 0) {
+                context.setGradleDistribution(URI.create(arguments.getGradleVersion()));
             } else {
                 context.setGradleDistribution(null);
-                context.setGradleVersion(gradleVersion);
+                context.setGradleVersion(arguments.getGradleVersion());
             }
         }
-        List<String> tasks = CommandLineUtil.parseGradleTaskNames(commandLine);
-        ShafuUi.scheduleTasks(project, context, tasks);
+        ShafuUi.scheduleTasks(project, context, arguments.getTaskNames());
         return null;
     }
 
