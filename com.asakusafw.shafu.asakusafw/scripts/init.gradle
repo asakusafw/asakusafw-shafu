@@ -2,12 +2,23 @@ import org.gradle.api.artifacts.Configuration
 
 allprojects { Project project ->
     def withAsakusa = { cl ->
+        Closure once = cl
+        cl = {
+            once.call()
+            once = {}
+        }
         if (GradleVersion.current() >= GradleVersion.version('2.0')) {
             project.plugins.withId('asakusafw') {
                 cl.call()
             }
+            project.plugins.withId('asakusafw-sdk') {
+                cl.call()
+            }
         } else {
             project.plugins.matching { it == project.plugins.findPlugin('asakusafw') }.all {
+                cl.call()
+            }
+            project.plugins.matching { it == project.plugins.findPlugin('asakusafw-sdk') }.all {
                 cl.call()
             }
         }
@@ -95,7 +106,7 @@ allprojects { Project project ->
         project.afterEvaluate {
             project.tasks.create('shafuInstallBatchapps') {
                 description 'installs Asakusa batchapps into development environment'
-                dependsOn project.tasks.compileBatchapp
+                dependsOn project.tasks.jarBatchapp
                 doLast {
                     File batchapps
                     if (System.getenv('ASAKUSA_BATCHAPPS_HOME') != null) {
@@ -111,16 +122,12 @@ allprojects { Project project ->
                         logger.error 'ASAKUSA_HOME is not defined'
                         throw new IllegalStateException('ASAKUSA_HOME is not defined')
                     }
-                    project.tasks.compileBatchapp.outputDirectory.eachDir { File app ->
-                        File target = new File(batchapps, app.getName())
-                        if (target.exists()) {
-                            project.delete target
+                    logger.lifecycle "installing batchapp: ${project.tasks.jarBatchapp.archivePath}"
+                    project.sync {
+                        from project.zipTree(project.tasks.jarBatchapp.archivePath).matching {
+                            exclude 'META-INF/**'
                         }
-                        logger.lifecycle "installing batchapp: ${target}"
-                        project.copy {
-                            from app
-                            into target
-                        }
+                        into batchapps
                     }
                 }
             }
