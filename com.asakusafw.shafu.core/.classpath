@@ -5,11 +5,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-codec-1.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-compress-1.10.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gradle-tooling-api-2.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gradle-tooling-api-3.2.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpclient-4.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpcore-4.4.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.7.16.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jcl-over-slf4j-1.7.16.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-simple-1.7.16.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.7.21.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jcl-over-slf4j-1.7.21.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-simple-1.7.21.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
