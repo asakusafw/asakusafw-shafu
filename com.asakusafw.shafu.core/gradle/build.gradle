@@ -32,13 +32,17 @@ dependencies {
     pluginSources "org.gradle:gradle-tooling-api:${gradleVersion}:sources"
 }
 
-task cleanLibraries << {
-    delete classpathDestinationDir
+task cleanLibraries {
+    doLast {
+        delete classpathDestinationDir
+    }
 }
 
-task copyLibraries << {
-    copy {
-        from files(configurations.pluginClasspath)
-        into classpathDestinationDir
+task copyLibraries {
+    doLast {
+        copy {
+            from files(configurations.pluginClasspath)
+            into classpathDestinationDir
+        }
     }
 }
