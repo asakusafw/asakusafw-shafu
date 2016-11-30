@@ -38,16 +38,22 @@ if (System.getProperty('compiler.bootclasspath') != null) {
     customBootClasspath = project.file(System.getProperty('compiler.bootclasspath'))
 }
 
-task clean << {
-    delete(buildDir)
+task clean {
+    doLast {
+        delete(buildDir)
+    }
 }
 
-task cleanPdeBuild() << {
-    delete(pdeDirectory)
+task cleanPdeBuild() {
+    doLast {
+        delete(pdeDirectory)
+    }
 }
 
-task cleanPdeTools() << {
-    delete(toolsDirectory)
+task cleanPdeTools() {
+    doLast {
+        delete(toolsDirectory)
+    }
 }
 
 task prepareTools() {
