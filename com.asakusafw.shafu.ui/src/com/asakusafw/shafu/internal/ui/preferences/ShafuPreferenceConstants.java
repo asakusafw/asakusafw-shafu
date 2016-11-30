@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Preferences constants for Shafu UI.
  * @since 0.1.0
- * @version 0.3.1
+ * @version 0.5.0
  */
 public final class ShafuPreferenceConstants {
 
@@ -119,10 +119,10 @@ public final class ShafuPreferenceConstants {
     public static final File DEFAULT_JAVA_HOME = null;
 
     /**
-     * The Gradle version default value.
+     * The Gradle version default value ({@value}).
      * @since 0.2.7
      */
-    public static final String DEFAULT_GRADLE_VERSION = "2.3"; //$NON-NLS-1$
+    public static final String DEFAULT_GRADLE_VERSION = "3.1"; //$NON-NLS-1$
 
     /**
      * The default value of {@link #KEY_USE_HTTPS}.
