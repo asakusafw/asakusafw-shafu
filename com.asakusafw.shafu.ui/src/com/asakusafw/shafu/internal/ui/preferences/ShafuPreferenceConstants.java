@@ -126,9 +126,13 @@ public final class ShafuPreferenceConstants {
 
     /**
      * The default value of {@link #KEY_USE_HTTPS}.
+     *
+     * NOTE: Shafu changed the default value since 0.5.1 -
+     * Insecure location returns 301, but Gradle tooling API does not follow to the moved location.
+     *
      * @since 0.3.1
      */
-    public static final boolean DEFAULT_USE_HTTPS = false;
+    public static final boolean DEFAULT_USE_HTTPS = true;
 
     /**
      * The Gradle distribution default value.

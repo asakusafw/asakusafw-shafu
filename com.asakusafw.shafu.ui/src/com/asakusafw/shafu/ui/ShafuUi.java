@@ -133,6 +133,7 @@ public final class ShafuUi {
         File javaHome = computeJavaHome(project, prefs);
         String gradleVersion = decodeVersion(prefs.getString(KEY_GRADLE_VERSION));
         URI gradleDistribution = decodeUri(prefs.getString(KEY_GRADLE_DISTRIBUTION));
+        boolean useHttps = prefs.getBoolean(KEY_USE_HTTPS);
 
         if (appearsIn(GradleLogLevel.values(), arguments) == false) {
             context.withGradleArguments(logLevel.getArguments());
@@ -156,6 +157,7 @@ public final class ShafuUi {
         context.setJavaHomeDir(javaHome);
         context.setGradleVersion(gradleVersion);
         context.setGradleDistribution(gradleDistribution);
+        context.setUseHttps(useHttps);
 
         return context;
     }
