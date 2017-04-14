@@ -1,6 +1,6 @@
 defaultTasks 'cleanLibraries', 'copyLibraries'
 
-def gradleVersion = '3.3'
+def gradleVersion = '3.5'
 
 def classpathDestinationDir = file('lib')
 def sourceDestinationDir = file('libsrc')
