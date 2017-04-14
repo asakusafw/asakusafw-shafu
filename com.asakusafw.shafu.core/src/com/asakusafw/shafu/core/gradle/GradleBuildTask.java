@@ -25,8 +25,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gradle.tooling.BuildLauncher;
-import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.asakusafw.shafu.core.gradle.GradleUtil.OperationHandler;
 import com.asakusafw.shafu.core.util.IRunnable;
@@ -102,16 +103,17 @@ public class GradleBuildTask implements IRunnable {
         monitor.beginTask(Messages.GradleBuildTask_monitorBuild, 100);
         try {
             GradleUtil.checkCancel(monitor);
+            BuildEnvironment environment = GradleUtil.getEnvironment(connection);
             BuildLauncher builder = connection.newBuild();
             builder.forTasks(tasks.toArray(new String[tasks.size()]));
-            OperationHandler<Void> handler = GradleUtil.configureOperation(builder, configuration);
+            OperationHandler<Void> handler = GradleUtil.configureOperation(environment, builder, configuration);
             try {
                 builder.run(handler);
                 while (handler.await() == false) {
                     GradleUtil.checkCancel(monitor, handler);
                     ProgressEvent event = handler.takeProgressEvent();
                     if (event != null) {
-                        monitor.setTaskName(String.format("[Gradle] %s", event.getDescription())); //$NON-NLS-1$
+                        monitor.setTaskName(String.format("[Gradle] %s", event.getDescriptor())); //$NON-NLS-1$
                     }
                     monitor.worked(1);
                     monitor.setWorkRemaining(100);
