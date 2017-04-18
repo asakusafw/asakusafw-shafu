@@ -142,6 +142,7 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
         pane.setLayout(new GridLayout(1, false));
         createDirectoryField(pane, KEY_JAVA_HOME, 1, Messages.ShafuPreferencePage_itemJavaHome, false);
         createPropertiesField(pane, KEY_SYSTEM_PROPERTIES, 1, Messages.ShafuPreferencePage_itemSystemProperties);
+        createPropertiesField(pane, KEY_ENVIRONMENT_VARIABLES, 1, Messages.ShafuPreferencePage_itemEnvironmentVariables);
     }
 
     private void createTabItem(TabFolder folder, Composite content, String label) {

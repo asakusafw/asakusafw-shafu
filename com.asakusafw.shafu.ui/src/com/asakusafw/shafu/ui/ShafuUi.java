@@ -129,6 +129,7 @@ public final class ShafuUi {
         GradleNetworkMode networkMode = GradleNetworkMode.fromSymbol(prefs.getString(KEY_NETWORK_MODE));
         Map<String, String> projectProps = decodeToMap(prefs.getString(KEY_PROJECT_PROPERTIES));
         Map<String, String> systemProps = decodeToMap(prefs.getString(KEY_SYSTEM_PROPERTIES));
+        Map<String, String> environments = decodeToMap(prefs.getString(KEY_ENVIRONMENT_VARIABLES));
         File gradleUserHome = decodeFile(prefs.getString(KEY_GRADLE_USER_HOME));
         File javaHome = computeJavaHome(project, prefs);
         String gradleVersion = decodeVersion(prefs.getString(KEY_GRADLE_VERSION));
@@ -152,6 +153,7 @@ public final class ShafuUi {
         for (Map.Entry<String, String> entry : systemProps.entrySet()) {
             context.withJvmArguments(String.format("-D%s=%s", entry.getKey(), entry.getValue())); //$NON-NLS-1$
         }
+        context.withEnvironmentVariables(environments);
 
         context.setGradleUserHomeDir(gradleUserHome);
         context.setJavaHomeDir(javaHome);

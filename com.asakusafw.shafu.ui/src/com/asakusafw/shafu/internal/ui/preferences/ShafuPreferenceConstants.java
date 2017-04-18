@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Preferences constants for Shafu UI.
  * @since 0.1.0
- * @version 0.5.0
+ * @version 0.5.2
  */
 public final class ShafuPreferenceConstants {
 
@@ -55,6 +55,12 @@ public final class ShafuPreferenceConstants {
      * The system properties property key.
      */
     public static final String KEY_SYSTEM_PROPERTIES = "systemProperties"; //$NON-NLS-1$
+
+    /**
+     * The environment variables key.
+     * @since 0.5.2
+     */
+    public static final String KEY_ENVIRONMENT_VARIABLES = "environmentVariables"; //$NON-NLS-1$
 
     /**
      * The Gradle user home property key.

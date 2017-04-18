@@ -23,8 +23,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.gradle.tooling.ModelBuilder;
-import org.gradle.tooling.ProgressEvent;
 import org.gradle.tooling.ProjectConnection;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.model.build.BuildEnvironment;
 
 import com.asakusafw.shafu.core.gradle.GradleUtil.OperationHandler;
 import com.asakusafw.shafu.core.util.ICallable;
@@ -95,15 +96,16 @@ public class GradleInspectTask<T> implements ICallable<T> {
         monitor.beginTask(Messages.GradleInspectTask_monitorInspect, 100);
         try {
             GradleUtil.checkCancel(monitor);
+            BuildEnvironment environment = GradleUtil.getEnvironment(connection);
             ModelBuilder<T> builder = connection.model(modelClass);
-            OperationHandler<T> handler = GradleUtil.configureOperation(builder, configuration);
+            OperationHandler<T> handler = GradleUtil.configureOperation(environment, builder, configuration);
             try {
                 builder.get(handler);
                 while (handler.await() == false) {
                     GradleUtil.checkCancel(monitor, handler);
                     ProgressEvent event = handler.takeProgressEvent();
                     if (event != null) {
-                        monitor.setTaskName(String.format("[Gradle] %s", event.getDescription())); //$NON-NLS-1$
+                        monitor.setTaskName(String.format("[Gradle] %s", event.getDescriptor())); //$NON-NLS-1$
                     }
                     monitor.worked(1);
                     monitor.setWorkRemaining(100);

@@ -22,7 +22,9 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.IStatus;
@@ -32,7 +34,7 @@ import com.asakusafw.shafu.internal.core.LogUtil;
 /**
  * Represents a Gradle context.
  * @since 0.1.0
- * @version 0.3.3
+ * @version 0.5.2
  */
 public final class GradleContext {
 
@@ -64,6 +66,8 @@ public final class GradleContext {
     volatile List<String> jvmArguments = new ArrayList<String>();
 
     volatile List<String> gradleArguments = new ArrayList<String>();
+
+    volatile Map<String, String> environmentVariables = new LinkedHashMap<String, String>();
 
     final List<IWorkspaceRunnable> disposeActions = new ArrayList<IWorkspaceRunnable>();
 
@@ -204,6 +208,24 @@ public final class GradleContext {
     }
 
     /**
+     * Returns the environment variables.
+     * @return the environment variables
+     * @since 0.5.2
+     */
+    public Map<String, String> getEnvironmentVariables() {
+        return environmentVariables;
+    }
+
+    /**
+     * Sets the environment variables.
+     * @param variables the environment variables
+     * @since 0.5.2
+     */
+    public void setEnvironmentVariables(Map<String, String> variables) {
+        this.environmentVariables = new LinkedHashMap<String, String>(variables);
+    }
+
+    /**
      * Sets the gradle distribution URI.
      * @param uri the distribution URI
      * @return this
@@ -325,6 +347,17 @@ public final class GradleContext {
      */
     public GradleContext withGradleArguments(String... arguments) {
         Collections.addAll(this.gradleArguments, arguments);
+        return this;
+    }
+
+    /**
+     * Adds the environment variables for build process.
+     * @param variables the variables
+     * @return this
+     * @since 0.5.2
+     */
+    public GradleContext withEnvironmentVariables(Map<String, String> variables) {
+        environmentVariables.putAll(variables);
         return this;
     }
 

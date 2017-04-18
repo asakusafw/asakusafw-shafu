@@ -27,6 +27,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -49,9 +50,12 @@ import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnectionException;
 import org.gradle.tooling.GradleConnector;
 import org.gradle.tooling.LongRunningOperation;
-import org.gradle.tooling.ProgressEvent;
-import org.gradle.tooling.ProgressListener;
+import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.ResultHandler;
+import org.gradle.tooling.events.ProgressEvent;
+import org.gradle.tooling.events.ProgressListener;
+import org.gradle.tooling.model.build.BuildEnvironment;
+import org.gradle.tooling.model.build.GradleEnvironment;
 import org.gradle.util.DistributionLocator;
 import org.gradle.util.GradleVersion;
 import org.osgi.framework.Bundle;
@@ -77,6 +81,8 @@ final class GradleUtil {
     private static final String KEY_CANCEL_FILE = "com.asakusafw.shafu.core.cancelFile"; //$NON-NLS-1$
 
     static final long DEFAULT_SOFT_CANCELLATION_TIMEOUT_MILLIS = 3000L;
+
+    private static final GradleVersion MIN_ENVIRONMENT_VARIABLES_VERSION = GradleVersion.version("3.5"); //$NON-NLS-1$
 
     private GradleUtil() {
         return;
@@ -220,13 +226,41 @@ final class GradleUtil {
     }
 
     /**
+     * Returns the current build environment.
+     * @param connection the connection
+     * @return the current environment
+     * @since 0.5.2
+     */
+    public static BuildEnvironment getEnvironment(ProjectConnection connection) {
+        return connection.getModel(BuildEnvironment.class);
+    }
+
+    /**
      * Configures the operation and creates an {@link OperationHandler} for it.
      * @param operation the target operation
      * @param context the target context
      * @param <T> the operation result type
      * @return the created handler
+     * @deprecated Use {@link #configureOperation(BuildEnvironment, LongRunningOperation, GradleContext)} instead
+     */
+    @Deprecated
+    public static <T> OperationHandler<T> configureOperation(
+            LongRunningOperation operation,
+            GradleContext context) {
+        return configureOperation(null, operation, context);
+    }
+
+    /**
+     * Configures the operation and creates an {@link OperationHandler} for it.
+     * @param operation the target operation
+     * @param context the target context
+     * @param <T> the operation result type
+     * @param environment the current environment
+     * @return the created handler
+     * @since 0.5.2
      */
     public static <T> OperationHandler<T> configureOperation(
+            BuildEnvironment environment,
             LongRunningOperation operation,
             GradleContext context) {
         if (context.getJavaHomeDir() != null) {
@@ -241,7 +275,16 @@ final class GradleUtil {
         if (context.standardErrorOutputOrNull != null) {
             operation.setStandardError(context.standardErrorOutputOrNull);
         }
-
+        if (context.environmentVariables.isEmpty() == false) {
+            if (environment != null && require(environment.getGradle(), MIN_ENVIRONMENT_VARIABLES_VERSION)) {
+                injectEnvironmentVariables(operation, context);
+            } else {
+                context.information(MessageFormat.format(
+                        Messages.GradleUtil_infoCustomEnvironmentVariablesDisabled,
+                        environment == null ? "N/A" : environment.getGradle().getGradleVersion(), //$NON-NLS-1$
+                        MIN_ENVIRONMENT_VARIABLES_VERSION.getVersion()));
+            }
+        }
         Properties properties = AccessController.doPrivileged(new PrivilegedAction<Properties>() {
             @Override
             public Properties run() {
@@ -273,6 +316,41 @@ final class GradleUtil {
             if (succeed == false) {
                 IoUtils.deleteQuietly(cancelFile);
             }
+        }
+    }
+
+    private static boolean require(GradleEnvironment environment, GradleVersion version) {
+        try {
+            GradleVersion current = GradleVersion.version(environment.getGradleVersion());
+            return current.isValid() && current.compareTo(version) >= 0;
+        } catch (RuntimeException e) {
+            LogUtil.log(IStatus.WARNING, MessageFormat.format(
+                    Messages.GradleUtil_warnInvalidGradleVersion,
+                    environment.getGradleVersion()), e);
+            return false;
+        }
+    }
+
+    private static void injectEnvironmentVariables(LongRunningOperation operation, GradleContext context) {
+        if (context.environmentVariables.isEmpty() == false) {
+            Map<String, String> env = AccessController.doPrivileged(new PrivilegedAction<Map<String, String>>() {
+                @Override
+                public Map<String, String> run() {
+                    Map<String, String> results = new LinkedHashMap<String, String>();
+                    results.putAll(System.getenv());
+                    return results;
+                }
+            });
+            for (Map.Entry<String, String> entry : context.environmentVariables.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (value == null) {
+                    env.remove(key);
+                } else {
+                    env.put(key, value);
+                }
+            }
+            operation.setEnvironmentVariables(env);
         }
     }
 
