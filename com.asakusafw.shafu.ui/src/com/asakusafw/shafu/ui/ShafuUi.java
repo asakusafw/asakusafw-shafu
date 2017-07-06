@@ -86,7 +86,7 @@ public final class ShafuUi {
      */
     public static void scheduleTasks(IProject project, GradleContext configuration, List<String> tasks) {
         ShafuConsole console = ShafuUi.getGlobalConsole(true);
-        console.clearConsole();
+        console.reset();
         console.attachTo(configuration);
 
         new RunnableBuilder(Messages.ShafuUi_buildJobName)

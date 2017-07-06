@@ -21,11 +21,14 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.ui.part.IPageBookViewPage;
 
 import com.asakusafw.shafu.core.gradle.GradleContext;
 import com.asakusafw.shafu.internal.ui.Activator;
@@ -57,6 +60,8 @@ public final class ShafuConsole extends MessageConsole {
 
     private final ShafuOutputStream infoStream;
 
+    final AtomicReference<IConsoleView> ui = new AtomicReference<IConsoleView>();
+
     /**
      * Creates a new instance.
      */
@@ -74,6 +79,13 @@ public final class ShafuConsole extends MessageConsole {
         this.errorStream.setColor(errorColor);
         this.infoStream = new ShafuOutputStream(this, Charset.defaultCharset());
         this.infoStream.setColor(infoColor);
+    }
+
+    @Override
+    public IPageBookViewPage createPage(IConsoleView view) {
+        IPageBookViewPage result = super.createPage(view);
+        ui.set(view);
+        return result;
     }
 
     /**
@@ -120,6 +132,24 @@ public final class ShafuConsole extends MessageConsole {
         return new Color(Activator.getDisplay(), r, g, b);
     }
 
+    /**
+     * Rests this console.
+     * @since 0.5.3
+     */
+    public void reset() {
+        clearConsole();
+        Activator.getDisplay().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                IConsoleView view = ui.get();
+                if (view == null || view.getConsole() != ShafuConsole.this) {
+                    return;
+                }
+                view.setScrollLock(false);
+            }
+        });
+    }
+
     @Override
     protected void dispose() {
         try {
@@ -130,6 +160,7 @@ public final class ShafuConsole extends MessageConsole {
     }
 
     private void dispose0() {
+        ui.set(null);
         closeQuietly(outputStream);
         closeQuietly(errorStream);
         backgroundColor.dispose();
