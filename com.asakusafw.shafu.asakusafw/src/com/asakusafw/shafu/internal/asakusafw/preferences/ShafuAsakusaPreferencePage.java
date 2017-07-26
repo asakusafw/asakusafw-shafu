@@ -26,10 +26,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -42,7 +39,6 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import com.asakusafw.shafu.internal.asakusafw.Activator;
 import com.asakusafw.shafu.internal.asakusafw.util.AsakusaFrameworkInfo;
-import com.asakusafw.shafu.ui.fields.BasicField;
 import com.asakusafw.shafu.ui.fields.FieldPreferencePage;
 import com.asakusafw.shafu.ui.fields.PreferenceField;
 
@@ -65,7 +61,6 @@ public class ShafuAsakusaPreferencePage extends FieldPreferencePage implements I
         pane.setLayout(layout);
 
         createUrlField(pane, KEY_CATALOG_URL, 1, Messages.ShafuAsakusaPreferencePage_itemCatalogUrl);
-        createExtensionGroup(pane);
         createSettingsView(pane);
 
         return pane;
@@ -118,44 +113,6 @@ public class ShafuAsakusaPreferencePage extends FieldPreferencePage implements I
                             title,
                             value));
                 }
-            }
-        });
-    }
-
-    private void createExtensionGroup(Composite parent) {
-        Group group = new Group(parent, SWT.NONE);
-        group.setText(Messages.ShafuAsakusaPreferencePage_groupExtensionSettings);
-        group.setLayoutData(GridDataFactory.swtDefaults()
-                .align(SWT.FILL, SWT.BEGINNING)
-                .indent(0, convertHeightInCharsToPixels(1) / 2)
-                .grab(true, false)
-                .create());
-
-        group.setLayout(new GridLayout(1, false));
-        createCheckboxField(group, KEY_EMULATION_MODE, 1, Messages.ShafuAsakusaPreferencePage_itemEmulationMode);
-    }
-
-    private void createCheckboxField(Composite parent, final String key, int span, final String title) {
-        final Button button = new Button(parent, SWT.CHECK);
-        button.setText(title);
-        button.setLayoutData(GridDataFactory.swtDefaults()
-                .span(span, 1)
-                .align(SWT.FILL, SWT.CENTER)
-                .grab(true, false)
-                .indent(BasicField.getDecorationWidth(), 0)
-                .create());
-        registerField(new PreferenceField(key, button) {
-            @Override
-            public void refresh() {
-                String current = getPreferenceValue(key);
-                boolean value = current.equals("true"); //$NON-NLS-1$
-                button.setSelection(value);
-            }
-        });
-        button.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                setPreferenceValue(key, String.valueOf(button.getSelection()));
             }
         });
     }

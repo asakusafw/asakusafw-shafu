@@ -24,7 +24,6 @@ final class Messages extends NLS {
     public static String ShafuAsakusaPreferencePage_groupSettingsView;
     public static String ShafuAsakusaPreferencePage_itemAsakusaHome;
     public static String ShafuAsakusaPreferencePage_itemCatalogUrl;
-    public static String ShafuAsakusaPreferencePage_itemEmulationMode;
     public static String ShafuAsakusaPreferencePage_itemHadoopCommand;
     public static String ShafuAsakusaPreferencePage_valuePathNotAvailable;
     static {
