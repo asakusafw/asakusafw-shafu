@@ -21,28 +21,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.Bundle;
 
 import com.asakusafw.shafu.core.gradle.GradleContext;
 import com.asakusafw.shafu.core.gradle.IGradleContextEnhancer;
 import com.asakusafw.shafu.core.util.StatusUtils;
 import com.asakusafw.shafu.internal.asakusafw.Activator;
-import com.asakusafw.shafu.internal.asakusafw.preferences.ShafuAsakusaPreferenceConstants;
 
 /**
  * Enhances {@link GradleContext} for Asakusa Framework.
- * @since 0.2.10
+ * @since 0.5.3
  */
 public class AsakusaFrameworkGradleContextEnhancer implements IGradleContextEnhancer {
 
     private static final IPath SCRIPT_BASE_PATH = Path.fromPortableString("scripts"); //$NON-NLS-1$
 
     private static final IPath SCRIPT_PATH = SCRIPT_BASE_PATH.append("init.gradle"); //$NON-NLS-1$
-
-    private static final String PREFIX_KEY = Activator.PLUGIN_ID + "."; //$NON-NLS-1$
-
-    private static final String KEY_EMULATION_MODE = PREFIX_KEY + "enableEmulationMode"; //$NON-NLS-1$
 
     @Override
     public void enhance(IProgressMonitor monitor, GradleContext context) throws CoreException {
@@ -58,7 +52,6 @@ public class AsakusaFrameworkGradleContextEnhancer implements IGradleContextEnha
     private void configureContext(SubMonitor monitor, GradleContext context, File script) throws CoreException {
         StatusUtils.checkCanceled(monitor);
         configureGradleArguments(context, script);
-        configureExtensionSettings(context);
     }
 
     private void configureGradleArguments(GradleContext context, File script) {
@@ -67,13 +60,6 @@ public class AsakusaFrameworkGradleContextEnhancer implements IGradleContextEnha
         newArguments.add(script.getAbsolutePath());
         newArguments.addAll(context.getGradleArguments());
         context.setGradleArguments(newArguments);
-    }
-
-    private void configureExtensionSettings(GradleContext context) {
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-        if (prefs.getBoolean(ShafuAsakusaPreferenceConstants.KEY_EMULATION_MODE)) {
-            context.withJvmArguments(String.format("-D%s=true", KEY_EMULATION_MODE)); //$NON-NLS-1$
-        }
     }
 
     private File resolveScript(SubMonitor monitor) throws CoreException {

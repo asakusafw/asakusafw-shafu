@@ -18,7 +18,7 @@ package com.asakusafw.shafu.internal.asakusafw.preferences;
 /**
  * Preference constants of Shafu Asakusa Plug-in.
  * @since 0.1.0
- * @version 0.4.0
+ * @version 0.5.3
  */
 public final class ShafuAsakusaPreferenceConstants {
 
@@ -36,18 +36,6 @@ public final class ShafuAsakusaPreferenceConstants {
      * The default value of catalog URL.
      */
     public static final String DEFAULT_CATALOG_URL = URL_DOWNLOAD_SITE + "template-catalog-release.txt"; //$NON-NLS-1$
-
-    /**
-     * The preference key of whether emulation mode is enabled or not.
-     * @since 0.4.0
-     */
-    public static final String KEY_EMULATION_MODE = "emulationMode"; //$NON-NLS-1$
-
-    /**
-     * The default value of whether emulation mode is enabled or not.
-     * @since 0.4.0
-     */
-    public static final boolean DEFAULT_EMULATION_MODE = false;
 
     private ShafuAsakusaPreferenceConstants() {
         return;
