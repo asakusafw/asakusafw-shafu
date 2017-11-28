@@ -27,9 +27,9 @@ def targetFeatures = [
 def qualifier = System.getProperty('qualifier', "N${new Date().format('yyyyMMddHHmmss')}")
 def targetDropinName = 'jinrikisha'
 
-def eclipseUrl = System.getProperty('eclipse.download', 'http://archive.eclipse.org/eclipse/downloads/drops/R-3.7.2-201202080800/eclipse-SDK-3.7.2-win32.zip')
+def eclipseUrl = System.getProperty('eclipse.download', 'http://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/kepler/SR2/eclipse-standard-kepler-SR2-win32.zip')
 
-def compilerCompliance = '1.6'
+def compilerCompliance = '1.7'
 def customBootClasspath = null
 def pdeDirectory = new File(buildDir, 'pde')
 def toolsDirectory = new File(buildDir, 'pde-tools')
@@ -57,15 +57,19 @@ task cleanPdeTools() {
 }
 
 task prepareTools() {
+    ext.eclipseSource = null
     ext.eclipseDirectory = null
     if (System.getProperty('eclipse.install')) {
-        ext.eclipseDirectory = new File(System.getProperty('eclipse.install'))
+        ext.eclipseSource = System.getProperty('eclipse.install')
+        ext.eclipseDirectory = new File(eclipseSource)
         if (!ext.eclipseDirectory.isDirectory()) {
             throw new IllegalArgumentException("Invalid -Declipse.install location: ${ext.eclipseDirectory}")
         }
     } else {
+        ext.eclipseSource = eclipseUrl
         ext.eclipseDirectory = new File(toolsDirectory, 'eclipse')
     }
+    inputs.property 'eclipseSource', eclipseSource
     outputs.dir eclipseDirectory
     doLast {
         mkdir(toolsDirectory)
@@ -237,9 +241,5 @@ def extractAndDelete(File file) {
         into dirPath
     }
     project.delete(file)
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.12'
 }
 
