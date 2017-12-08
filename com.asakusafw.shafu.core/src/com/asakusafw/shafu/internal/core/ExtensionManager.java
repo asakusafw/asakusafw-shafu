@@ -54,7 +54,7 @@ public class ExtensionManager {
             Activator.EXTENSION_PREFIX + "gradleContextEnhancers"; //$NON-NLS-1$
 
     private final AtomicReference<Map<String, IExtensionFilter>> extensionFilterCache =
-            new AtomicReference<Map<String, IExtensionFilter>>();
+            new AtomicReference<>();
 
     /**
      * Detects whether the target extension is accepted or not.
@@ -92,7 +92,7 @@ public class ExtensionManager {
         if (point == null) {
             throw new IllegalStateException(ID_EXTENSION_FILTERS);
         }
-        Map<String, IExtensionFilter> results = new HashMap<String, IExtensionFilter>();
+        Map<String, IExtensionFilter> results = new HashMap<>();
         for (IExtension extension : point.getExtensions()) {
             for (IConfigurationElement config : extension.getConfigurationElements()) {
                 String targetId = config.getAttribute("targetId"); //$NON-NLS-1$
@@ -136,7 +136,7 @@ public class ExtensionManager {
      * @return the created instances
      */
     public List<IGradleContextEnhancer> createGradleContextEnhancers() {
-        List<IGradleContextEnhancer> results = new ArrayList<IGradleContextEnhancer>();
+        List<IGradleContextEnhancer> results = new ArrayList<>();
         for (IGradleContextEnhancer provider : getClasses(IGradleContextEnhancer.class, ID_GRADLE_CONTEXT_ENHANCERS)) {
             results.add(provider);
         }
@@ -150,7 +150,7 @@ public class ExtensionManager {
         if (point == null) {
             throw new IllegalStateException(pointId);
         }
-        Collection<T> results = new ArrayList<T>();
+        Collection<T> results = new ArrayList<>();
         for (IExtension extension : point.getExtensions()) {
             if (accepts(extension) == false) {
                 LogUtil.debug("Extension is filtered: {0}", extension.getUniqueIdentifier()); //$NON-NLS-1$

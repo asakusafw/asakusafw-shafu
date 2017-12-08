@@ -127,7 +127,7 @@ public class BuildProjectHandler extends AbstractHandler {
     private LinkedList<String> loadCommandLineHisotry() {
         IDialogSettings settings = Activator.getDialogSettings(getClass().getSimpleName());
         String[] values = settings.getArray(PROPERTY_COMMAND_LINE_HISTORY);
-        LinkedList<String> results = new LinkedList<String>();
+        LinkedList<String> results = new LinkedList<>();
         if (values != null) {
             Collections.addAll(results, values);
         }

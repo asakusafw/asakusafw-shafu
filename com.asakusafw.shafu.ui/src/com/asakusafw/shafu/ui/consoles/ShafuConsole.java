@@ -60,7 +60,7 @@ public final class ShafuConsole extends MessageConsole {
 
     private final ShafuOutputStream infoStream;
 
-    final AtomicReference<IConsoleView> ui = new AtomicReference<IConsoleView>();
+    final AtomicReference<IConsoleView> ui = new AtomicReference<>();
 
     /**
      * Creates a new instance.

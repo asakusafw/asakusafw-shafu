@@ -38,7 +38,7 @@ public final class ShafuNetwork {
 
     private static final Set<String> HTTP_SCHEMES;
     static {
-        Set<String> set = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        Set<String> set = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         set.add("http"); //$NON-NLS-1$
         set.add("https"); //$NON-NLS-1$
         HTTP_SCHEMES = Collections.unmodifiableSet(set);

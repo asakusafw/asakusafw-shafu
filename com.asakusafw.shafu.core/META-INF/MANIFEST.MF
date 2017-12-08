@@ -11,13 +11,13 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.expressions,
  org.eclipse.jdt.core,
  org.eclipse.jdt.launching
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: OSGI-INF/l10n/bundle
 Bundle-ClassPath: plugin.jar,
  lib/commons-codec-1.9.jar,
  lib/commons-compress-1.10.jar,
- lib/gradle-tooling-api-3.5.jar,
+ lib/gradle-tooling-api-4.4.jar,
  lib/httpclient-4.4.1.jar,
  lib/httpcore-4.4.1.jar,
  lib/slf4j-api-1.7.21.jar,

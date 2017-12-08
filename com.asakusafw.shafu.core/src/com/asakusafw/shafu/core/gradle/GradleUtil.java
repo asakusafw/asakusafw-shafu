@@ -300,7 +300,7 @@ final class GradleUtil {
             final Properties newProperties = copyProperties(properties);
             newProperties.put("user.dir", context.getProjectDirectory().getAbsolutePath()); //$NON-NLS-1$
             newProperties.putAll(extractSystemProperties(context));
-            OperationHandler<T> results = new OperationHandler<T>(operation, properties, cancelFile);
+            OperationHandler<T> results = new OperationHandler<>(operation, properties, cancelFile);
 
             // install modified properties
             AccessController.doPrivileged(new PrivilegedAction<Void>() {
@@ -336,7 +336,7 @@ final class GradleUtil {
             Map<String, String> env = AccessController.doPrivileged(new PrivilegedAction<Map<String, String>>() {
                 @Override
                 public Map<String, String> run() {
-                    Map<String, String> results = new LinkedHashMap<String, String>();
+                    Map<String, String> results = new LinkedHashMap<>();
                     results.putAll(System.getenv());
                     return results;
                 }
@@ -436,7 +436,7 @@ final class GradleUtil {
     }
 
     private static File prepareCancelFile(GradleContext context) {
-        List<String> newArguments = new ArrayList<String>();
+        List<String> newArguments = new ArrayList<>();
         try {
             IPath scriptPath = resolveBuiltinPath(Activator.getDefault().getBundle(), SCRIPT_PATH);
             newArguments.add("--init-script"); //$NON-NLS-1$
@@ -511,12 +511,12 @@ final class GradleUtil {
 
         private final CountDownLatch latch = new CountDownLatch(1);
 
-        final AtomicReference<ProgressEvent> eventRef = new AtomicReference<ProgressEvent>();
+        final AtomicReference<ProgressEvent> eventRef = new AtomicReference<>();
 
-        private final AtomicReference<T> resultRef = new AtomicReference<T>();
+        private final AtomicReference<T> resultRef = new AtomicReference<>();
 
         private final AtomicReference<GradleConnectionException> exceptionRef =
-                new AtomicReference<GradleConnectionException>();
+                new AtomicReference<>();
 
         private final CancellationTokenSource cancellator;
 

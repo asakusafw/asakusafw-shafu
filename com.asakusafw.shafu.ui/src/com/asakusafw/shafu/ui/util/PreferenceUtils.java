@@ -149,7 +149,7 @@ public final class PreferenceUtils {
         boolean sawEscape = false;
         String key = null;
         StringBuilder buf = new StringBuilder();
-        Map<String, String> results = new LinkedHashMap<String, String>();
+        Map<String, String> results = new LinkedHashMap<>();
         for (int i = 0, n = encoded.length(); i < n; i++) {
             char c = encoded.charAt(i);
             if (sawEscape) {

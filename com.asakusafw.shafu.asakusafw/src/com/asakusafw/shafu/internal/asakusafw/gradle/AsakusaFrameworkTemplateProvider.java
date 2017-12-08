@@ -98,7 +98,7 @@ public class AsakusaFrameworkTemplateProvider implements IProjectTemplateProvide
             return ShafuNetwork.processContent(catalog, new IContentProcessor<Map<String, URL>>() {
                 @Override
                 public Map<String, URL> process(InputStream input) throws IOException {
-                    Map<String, URL> results = new TreeMap<String, URL>();
+                    Map<String, URL> results = new TreeMap<>();
                     Scanner scanner = new Scanner(new InputStreamReader(input, ENCODING));
                     while (scanner.hasNextLine()) {
                         String line = scanner.nextLine().trim();

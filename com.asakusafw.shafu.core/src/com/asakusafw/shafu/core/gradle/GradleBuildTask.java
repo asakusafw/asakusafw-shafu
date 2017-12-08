@@ -67,7 +67,7 @@ public class GradleBuildTask implements IRunnable {
      */
     public GradleBuildTask(GradleContext configuration, List<String> tasks) {
         this.configuration = configuration;
-        this.tasks = new ArrayList<String>(tasks);
+        this.tasks = new ArrayList<>(tasks);
     }
 
     /**

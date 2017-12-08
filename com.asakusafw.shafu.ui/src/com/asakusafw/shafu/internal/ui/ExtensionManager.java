@@ -55,8 +55,8 @@ public class ExtensionManager {
         if (point == null) {
             throw new IllegalStateException(ID_PROJECT_TEMPLATES);
         }
-        List<IProjectTemplateProvider> results = new ArrayList<IProjectTemplateProvider>();
-        final Map<String, URL> templates = new TreeMap<String, URL>();
+        List<IProjectTemplateProvider> results = new ArrayList<>();
+        final Map<String, URL> templates = new TreeMap<>();
         for (IExtension extension : point.getExtensions()) {
             if (ExtensionFilters.accepts(extension) == false) {
                 LogUtil.debug("Extension is filtered: {0}", extension.getUniqueIdentifier()); //$NON-NLS-1$

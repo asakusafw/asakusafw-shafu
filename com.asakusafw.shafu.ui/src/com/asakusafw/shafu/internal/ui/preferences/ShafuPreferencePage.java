@@ -208,8 +208,8 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
                 .align(SWT.BEGINNING, SWT.CENTER)
                 .indent(convertWidthInCharsToPixels(2) + BasicField.getDecorationWidth(), 0)
                 .create());
-        final List<String> itemLabels = new ArrayList<String>(options.length);
-        final List<String> itemValues = new ArrayList<String>(options.length);
+        final List<String> itemLabels = new ArrayList<>(options.length);
+        final List<String> itemValues = new ArrayList<>(options.length);
         for (GradleOption option : options) {
             itemLabels.add(option.getDescription());
             itemValues.add(option.name());
@@ -359,7 +359,7 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
                 .create());
         group.setLayout(new GridLayout(2, false));
 
-        final Map<String, String> contents = new LinkedHashMap<String, String>();
+        final Map<String, String> contents = new LinkedHashMap<>();
         final TableViewer viewer = new TableViewer(
                 group,
                 SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
@@ -435,7 +435,7 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
                 ISelection selection = viewer.getSelection();
                 if (selection instanceof IStructuredSelection) {
                     Iterator<?> iter = ((IStructuredSelection) selection).iterator();
-                    Set<String> keys = new HashSet<String>();
+                    Set<String> keys = new HashSet<>();
                     while (iter.hasNext()) {
                         Map.Entry<?, ?> entry = (Map.Entry<?, ?>) iter.next();
                         keys.add((String) entry.getKey());
