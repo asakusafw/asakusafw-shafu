@@ -74,7 +74,7 @@ task prepareTools() {
     inputs.property 'eclipseSource', eclipseSource
     outputs.dir eclipseDirectory
     onlyIf {
-        ext.useInstall
+        !ext.useInstall
     }
     doLast {
         mkdir(toolsDirectory)
