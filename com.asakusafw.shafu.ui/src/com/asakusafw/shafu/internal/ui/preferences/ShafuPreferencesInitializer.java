@@ -42,6 +42,8 @@ public class ShafuPreferencesInitializer extends AbstractPreferenceInitializer {
         prefs.setDefault(KEY_JAVA_HOME, encodeFile(DEFAULT_JAVA_HOME));
         prefs.setDefault(KEY_GRADLE_VERSION, encodeVersion(DEFAULT_GRADLE_VERSION));
         prefs.setDefault(KEY_USE_HTTPS, DEFAULT_USE_HTTPS);
+        prefs.setDefault(KEY_USE_WRAPPER_CONFIGURATION, DEFAULT_USE_WRAPPER_CONFIGURATION);
+        prefs.setDefault(KEY_WRAPPER_CONFIGURATION_PATHS, encodeList(DEFAULT_WRAPPER_CONFIGURATION_PATHS));
         prefs.setDefault(KEY_GRADLE_DISTRIBUTION, encodeUri(DEFAULT_GRADLE_DISTRIBUTION));
     }
 }

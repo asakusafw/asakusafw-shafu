@@ -7,7 +7,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IStatus;
@@ -17,7 +20,7 @@ import com.asakusafw.shafu.internal.ui.LogUtil;
 /**
  * Utilities for preferences.
  * @since 0.1.0
- * @version 0.2.7
+ * @version 0.7.0
  */
 public final class PreferenceUtils {
 
@@ -112,6 +115,58 @@ public final class PreferenceUtils {
             return null;
         }
         return encoded.trim();
+    }
+
+    /**
+     * Encodes elements into a flat character string.
+     * @param elements the target elements
+     * @return the encoded string
+     * @since 0.7.0
+     */
+    public static String encodeList(Collection<String> elements) {
+        if (elements.isEmpty()) {
+            return ""; //$NON-NLS-1$
+        }
+        StringBuilder buf = new StringBuilder();
+        for (String s : elements) {
+            encodeFieldTo(s, buf);
+            buf.append(VALUE_DELIMITER);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Decodes the encoded flat character string into elements.
+     * @param encoded the encoded string
+     * @return the decoded elements
+     * @since 0.7.0
+     */
+    public static List<String> decodeToList(String encoded) {
+        boolean sawEscape = false;
+        StringBuilder buf = new StringBuilder();
+        List<String> results = new ArrayList<>();
+        for (int i = 0, n = encoded.length(); i < n; i++) {
+            char c = encoded.charAt(i);
+            if (sawEscape) {
+                buf.append(c);
+                sawEscape = false;
+            } else {
+                switch (c) {
+                case ESCAPE:
+                    sawEscape = true;
+                    break;
+                case VALUE_DELIMITER:
+                    String value = buf.toString();
+                    buf.setLength(0);
+                    results.add(value);
+                    break;
+                default:
+                    buf.append(c);
+                    break;
+                }
+            }
+        }
+        return results;
     }
 
     /**
