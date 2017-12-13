@@ -33,7 +33,7 @@ public class RunnableBuilder {
 
     final String taskName;
 
-    final List<Entry> entries = new ArrayList<Entry>();
+    final List<Entry> entries = new ArrayList<>();
 
     /**
      * Creates a new instance.
@@ -62,7 +62,7 @@ public class RunnableBuilder {
         if (entries.size() == 1) {
             return entries.get(0).task;
         }
-        final List<Entry> tasks = new ArrayList<Entry>(entries);
+        final List<Entry> tasks = new ArrayList<>(entries);
         final int totalSize = computeTotal();
         return new IRunnable() {
             @Override

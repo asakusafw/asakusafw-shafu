@@ -72,7 +72,7 @@ public final class ProgressUtils {
      */
     public static <T> T call(IRunnableContext context, final ICallable<T> callable) throws CoreException {
         try {
-            final AtomicReference<T> result = new AtomicReference<T>();
+            final AtomicReference<T> result = new AtomicReference<>();
             context.run(true, true, new IRunnableWithProgress() {
                 @Override
                 public void run(IProgressMonitor monitor) throws InvocationTargetException {

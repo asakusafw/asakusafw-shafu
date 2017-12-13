@@ -34,9 +34,9 @@ public abstract class FieldPreferencePage extends PreferencePage {
 
     private static final String UNKNOWN_ID = "unknown"; //$NON-NLS-1$
 
-    private final Map<String, IPreferenceField> fields = new LinkedHashMap<String, IPreferenceField>();
+    private final Map<String, IPreferenceField> fields = new LinkedHashMap<>();
 
-    private final Map<String, String> values = new HashMap<String, String>();
+    private final Map<String, String> values = new HashMap<>();
 
     private boolean bulkRefresh = false;
 

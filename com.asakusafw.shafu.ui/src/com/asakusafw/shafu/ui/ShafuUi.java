@@ -180,7 +180,7 @@ public final class ShafuUi {
         if (arguments.isEmpty()) {
             return false;
         }
-        Set<String> candidates = new HashSet<String>();
+        Set<String> candidates = new HashSet<>();
         for (GradleOption option : options) {
             if (option.getOptionName() != null) {
                 candidates.add(option.getOptionName());

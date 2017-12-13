@@ -239,7 +239,7 @@ public class SelectGradleProjectsPage extends WizardPage {
         }
         this.rootProjectDirectory = null;
         this.selectedProjectDirectories = null;
-        List<File> results = new ArrayList<File>();
+        List<File> results = new ArrayList<>();
         for (TableItem item : viewer.getTable().getItems()) {
             ProjectEntry entry = (ProjectEntry) item.getData();
             if (entry.isRoot()) {
@@ -365,8 +365,8 @@ public class SelectGradleProjectsPage extends WizardPage {
             }
             current = parent;
         }
-        List<ProjectEntry> results = new ArrayList<ProjectEntry>();
-        LinkedList<EclipseProject> work = new LinkedList<EclipseProject>();
+        List<ProjectEntry> results = new ArrayList<>();
+        LinkedList<EclipseProject> work = new LinkedList<>();
         work.add(current);
         while (work.isEmpty() == false) {
             EclipseProject next = work.removeFirst();
@@ -374,8 +374,8 @@ public class SelectGradleProjectsPage extends WizardPage {
             work.addAll(next.getChildren());
         }
 
-        Set<IPath> projectLocation = new HashSet<IPath>();
-        Set<String> projectNames = new HashSet<String>();
+        Set<IPath> projectLocation = new HashSet<>();
+        Set<String> projectNames = new HashSet<>();
         for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
             projectLocation.add(project.getLocation());
             projectNames.add(project.getName());
@@ -425,7 +425,7 @@ public class SelectGradleProjectsPage extends WizardPage {
     }
 
     List<String> getTaskNames() {
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         if (buildCheck.getSelection()) {
             results.add(GradleBuildTask.TASK_BUILD_PROJECT);
         }

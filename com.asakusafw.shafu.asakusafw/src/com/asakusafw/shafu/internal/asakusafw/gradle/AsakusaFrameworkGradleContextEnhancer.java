@@ -55,7 +55,7 @@ public class AsakusaFrameworkGradleContextEnhancer implements IGradleContextEnha
     }
 
     private void configureGradleArguments(GradleContext context, File script) {
-        List<String> newArguments = new ArrayList<String>();
+        List<String> newArguments = new ArrayList<>();
         newArguments.add("--init-script"); //$NON-NLS-1$
         newArguments.add(script.getAbsolutePath());
         newArguments.addAll(context.getGradleArguments());

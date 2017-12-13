@@ -62,18 +62,24 @@ task prepareTools() {
     if (System.getProperty('eclipse.install')) {
         ext.eclipseSource = System.getProperty('eclipse.install')
         ext.eclipseDirectory = new File(eclipseSource)
+        ext.useInstall = true
         if (!ext.eclipseDirectory.isDirectory()) {
             throw new IllegalArgumentException("Invalid -Declipse.install location: ${ext.eclipseDirectory}")
         }
     } else {
         ext.eclipseSource = eclipseUrl
         ext.eclipseDirectory = new File(toolsDirectory, 'eclipse')
+        ext.useInstall = false
     }
     inputs.property 'eclipseSource', eclipseSource
     outputs.dir eclipseDirectory
+    onlyIf {
+        !ext.useInstall
+    }
     doLast {
         mkdir(toolsDirectory)
-        if (eclipseDirectory.exists()) {
+        def marker = new File(eclipseDirectory, ".prepared")
+        if (marker.exists()) {
             return
         }
         logging.level = LogLevel.INFO
@@ -84,6 +90,7 @@ task prepareTools() {
             into toolsDirectory
         }
         delete(archiveFile)
+        marker.createNewFile()
     }
 }
 
@@ -91,8 +98,8 @@ task copySources() {
     ext.pdeBuildDirectory = new File(pdeDirectory, 'build')
     def sourceFeatures = sourceBases*.listFiles().flatten().findAll({ new File(it, 'feature.xml').exists() });
     def sourcePlugins = sourceBases*.listFiles().flatten().findAll({ new File(it, 'plugin.xml').exists() });
-    inputs.dir sourceFeatures
-    inputs.dir sourcePlugins
+    sourceFeatures.each { inputs.dir it }
+    sourcePlugins.each { inputs.dir it }
     outputs.dir pdeBuildDirectory
     doLast {
         sourceFeatures.each { f ->

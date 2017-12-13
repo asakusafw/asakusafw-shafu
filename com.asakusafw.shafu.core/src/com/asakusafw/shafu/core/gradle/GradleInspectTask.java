@@ -60,7 +60,7 @@ public class GradleInspectTask<T> implements ICallable<T> {
      * @return the created instance
      */
     public static <T> GradleInspectTask<T> newInstance(GradleContext configuration, Class<T> modelClass) {
-        return new GradleInspectTask<T>(configuration, modelClass);
+        return new GradleInspectTask<>(configuration, modelClass);
     }
 
     /**

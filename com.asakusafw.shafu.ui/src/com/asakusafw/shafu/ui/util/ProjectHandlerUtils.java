@@ -41,7 +41,7 @@ public class ProjectHandlerUtils {
 
     private static final List<Class<? extends IResource>> RESOURCE_KIND;
     static {
-        List<Class<? extends IResource>> classes = new ArrayList<Class<? extends IResource>>();
+        List<Class<? extends IResource>> classes = new ArrayList<>();
         classes.add(IResource.class);
         classes.add(IContainer.class);
         classes.add(IProject.class);

@@ -48,7 +48,7 @@ public class CompositeExtensionFilter implements IExtensionFilter {
         if (filters.size() == 1) {
             return filters.iterator().next();
         }
-        List<IExtensionFilter> newFilters = new ArrayList<IExtensionFilter>();
+        List<IExtensionFilter> newFilters = new ArrayList<>();
         for (IExtensionFilter filter : filters) {
             if (filter instanceof CompositeExtensionFilter) {
                 Collections.addAll(newFilters, ((CompositeExtensionFilter) filter).filters);

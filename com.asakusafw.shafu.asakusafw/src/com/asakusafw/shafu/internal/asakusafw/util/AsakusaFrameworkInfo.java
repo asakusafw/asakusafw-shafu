@@ -49,7 +49,7 @@ public final class AsakusaFrameworkInfo {
 
     private static final String[] COMMAND_EXTENSIONS;
     static {
-        List<String> extensions = new ArrayList<String>();
+        List<String> extensions = new ArrayList<>();
         String os = Platform.getOS();
         if (os != null && os.equals(Platform.OS_WIN32)) {
             String extString = System.getenv(ENV_WINDOWS_PATH_EXTENSIONS);

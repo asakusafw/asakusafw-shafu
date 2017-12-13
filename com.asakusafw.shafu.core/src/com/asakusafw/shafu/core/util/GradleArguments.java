@@ -85,12 +85,12 @@ public class GradleArguments {
         LinkedList<String> tokens = parseTokens(commandLine);
         String version = consumeVersion(tokens);
         List<String> options = consumeOptions(tokens);
-        List<String> tasks = new ArrayList<String>(tokens);
+        List<String> tasks = new ArrayList<>(tokens);
         return new GradleArguments(version, tasks, options);
     }
 
     static LinkedList<String> parseTokens(String commandLine) {
-        LinkedList<String> results = new LinkedList<String>();
+        LinkedList<String> results = new LinkedList<>();
         StringBuilder buf = new StringBuilder();
         boolean sawEscape = false;
         for (int index = 0, n = commandLine.length(); index < n; index++) {
@@ -134,7 +134,7 @@ public class GradleArguments {
     }
 
     private static List<String> consumeOptions(LinkedList<String> tokens) {
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         boolean sawTaskName = false;
         boolean sawSeparator = false;
         for (Iterator<String> iter = tokens.iterator(); iter.hasNext();) {

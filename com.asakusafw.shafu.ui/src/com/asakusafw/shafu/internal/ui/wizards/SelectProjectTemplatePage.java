@@ -397,7 +397,7 @@ public class SelectProjectTemplatePage extends WizardPage {
     }
 
     private Map<String, URL> prepareTemplates() {
-        final Map<String, URL> results = new TreeMap<String, URL>();
+        final Map<String, URL> results = new TreeMap<>();
         final List<IProjectTemplateProvider> providers = Activator.getExtensions().getProjectTemplateProviders();
         try {
             ProgressUtils.run(getContainer(), new IRunnable() {
@@ -499,7 +499,7 @@ public class SelectProjectTemplatePage extends WizardPage {
     }
 
     List<String> getTaskNames() {
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         if (buildCheck.getSelection()) {
             results.add(GradleBuildTask.TASK_BUILD_PROJECT);
         }

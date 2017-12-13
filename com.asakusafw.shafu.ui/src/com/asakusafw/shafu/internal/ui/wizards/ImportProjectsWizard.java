@@ -176,7 +176,7 @@ public class ImportProjectsWizard extends Wizard implements IImportWizard {
             SubMonitor sub = SubMonitor.convert(monitor);
             sub.beginTask(Messages.ImportProjectsWizard_monitorImportProjects, projectDirectories.size() + 1);
             try {
-                List<IStatus> statuses = new ArrayList<IStatus>();
+                List<IStatus> statuses = new ArrayList<>();
                 for (File directory : projectDirectories) {
                     try {
                         perform(sub.newChild(1), directory);

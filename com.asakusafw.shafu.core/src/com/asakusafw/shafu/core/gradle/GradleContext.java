@@ -63,13 +63,13 @@ public final class GradleContext {
 
     private volatile PrintWriter informationOutputOrNull;
 
-    volatile List<String> jvmArguments = new ArrayList<String>();
+    volatile List<String> jvmArguments = new ArrayList<>();
 
-    volatile List<String> gradleArguments = new ArrayList<String>();
+    volatile List<String> gradleArguments = new ArrayList<>();
 
-    volatile Map<String, String> environmentVariables = new LinkedHashMap<String, String>();
+    volatile Map<String, String> environmentVariables = new LinkedHashMap<>();
 
-    final List<IWorkspaceRunnable> disposeActions = new ArrayList<IWorkspaceRunnable>();
+    final List<IWorkspaceRunnable> disposeActions = new ArrayList<>();
 
     /**
      * Creates a new instance.
@@ -187,7 +187,7 @@ public final class GradleContext {
      * @param arguments the Java VM arguments
      */
     public void setJvmArguments(List<String> arguments) {
-        this.jvmArguments = new ArrayList<String>(arguments);
+        this.jvmArguments = new ArrayList<>(arguments);
     }
 
     /**
@@ -204,7 +204,7 @@ public final class GradleContext {
      * @param arguments the Gradle arguments
      */
     public void setGradleArguments(List<String> arguments) {
-        this.gradleArguments = new ArrayList<String>(arguments);
+        this.gradleArguments = new ArrayList<>(arguments);
     }
 
     /**
@@ -222,7 +222,7 @@ public final class GradleContext {
      * @since 0.5.2
      */
     public void setEnvironmentVariables(Map<String, String> variables) {
-        this.environmentVariables = new LinkedHashMap<String, String>(variables);
+        this.environmentVariables = new LinkedHashMap<>(variables);
     }
 
     /**

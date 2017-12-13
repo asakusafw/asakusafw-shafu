@@ -126,7 +126,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         final IWorkingSet[] workingSets = informationPage.getSelectedWorkingSets();
         final List<String> taskNames = templatePage.getTaskNames();
         final ShafuConsole console = templatePage.getConsole();
-        final AtomicReference<Stage> stageRef = new AtomicReference<Stage>(Stage.INIT);
+        final AtomicReference<Stage> stageRef = new AtomicReference<>(Stage.INIT);
         final Archive templateArchive = new Archive(templatePage.getTargetFile(), templatePage.getTargetUrl());
         try {
             ProgressUtils.run(getContainer(), new IRunnable() {
@@ -223,7 +223,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private File detectProjectEntry(SubMonitor monitor, File temporaryFolder) throws CoreException {
         monitor.beginTask(Messages.NewProjectWizard_monitorInspectProject, 100);
-        List<File> results = new ArrayList<File>();
+        List<File> results = new ArrayList<>();
         detectProjectEntry0(monitor, temporaryFolder, results);
         if (results.isEmpty()) {
             throw new CoreException(new Status(
@@ -246,7 +246,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
         if (results.size() == 1) {
             return results.get(0).getParentFile();
         }
-        final List<IPath> paths = new ArrayList<IPath>();
+        final List<IPath> paths = new ArrayList<>();
         IPath base = Path.fromOSString(temporaryFolder.getAbsolutePath());
         for (File file : results) {
             IPath path = Path.fromOSString(file.getAbsolutePath());
@@ -266,7 +266,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
     }
 
     private IPath selectProjectEntryByDialog(final List<IPath> paths) {
-        final AtomicReference<IPath> selectionResult = new AtomicReference<IPath>();
+        final AtomicReference<IPath> selectionResult = new AtomicReference<>();
         Activator.getDisplay().syncExec(new Runnable() {
             @Override
             public void run() {
@@ -378,7 +378,7 @@ public class NewProjectWizard extends Wizard implements INewWizard {
 
     private static class ShortenLabelProvider extends LabelProvider {
 
-        private final Map<IPath, IPath> resolved = new HashMap<IPath, IPath>();
+        private final Map<IPath, IPath> resolved = new HashMap<>();
 
         public ShortenLabelProvider(List<? extends IPath> paths) {
             if (paths.size() >= 2) {
