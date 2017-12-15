@@ -34,7 +34,9 @@ final class Messages extends NLS {
     public static String ShafuPreferencePage_errorDirectoryMissing;
     public static String ShafuPreferencePage_groupEnvironment;
     public static String ShafuPreferencePage_groupLogging;
+    public static String ShafuPreferencePage_groupWrapper;
     public static String ShafuPreferencePage_hintOptionalText;
+    public static String ShafuPreferencePage_hintWrapperConfigurationPaths;
     public static String ShafuPreferencePage_itemEnvironmentVariables;
     public static String ShafuPreferencePage_itemGradleUserHome;
     public static String ShafuPreferencePage_itemGradleVersion;
@@ -44,6 +46,8 @@ final class Messages extends NLS {
     public static String ShafuPreferencePage_itemProjectProperties;
     public static String ShafuPreferencePage_itemStackTrace;
     public static String ShafuPreferencePage_itemSystemProperties;
+    public static String ShafuPreferencePage_itemUseWrapperConfiguration;
+    public static String ShafuPreferencePage_itemWrapperConfigurationPaths;
     public static String ShafuPreferencePage_propertiesAddLabel;
     public static String ShafuPreferencePage_propertiesKeyLabel;
     public static String ShafuPreferencePage_propertiesRemoveLabel;

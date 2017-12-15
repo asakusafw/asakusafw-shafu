@@ -133,17 +133,17 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
         createDirectoryField(environmentGroup, KEY_GRADLE_USER_HOME, 2, Messages.ShafuPreferencePage_itemGradleUserHome, false);
 
         Group wrapperGroup = new Group(pane, SWT.NONE);
-        wrapperGroup.setText("Wrapper");
+        wrapperGroup.setText(Messages.ShafuPreferencePage_groupWrapper);
         wrapperGroup.setLayoutData(GridDataFactory.swtDefaults()
                 .align(SWT.FILL, SWT.BEGINNING)
                 .grab(true, false)
                 .create());
         wrapperGroup.setLayout(new GridLayout(2, false));
         createCheckboxField(wrapperGroup, KEY_USE_WRAPPER_CONFIGURATION, 2,
-                "Use Gradle wrapper version");
+                Messages.ShafuPreferencePage_itemUseWrapperConfiguration);
         createCommaListField(wrapperGroup, KEY_WRAPPER_CONFIGURATION_PATHS, 2,
-                "Gradle Wrapper configurations",
-                "Relative paths of Gradle wrapper configuration file (*.properties), separated by comma.");
+                Messages.ShafuPreferencePage_itemWrapperConfigurationPaths,
+                Messages.ShafuPreferencePage_hintWrapperConfigurationPaths);
     }
 
     private void createProjectTab(Composite pane) {
