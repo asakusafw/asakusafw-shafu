@@ -19,14 +19,20 @@ import static com.asakusafw.shafu.internal.ui.preferences.ShafuPreferenceConstan
 import static com.asakusafw.shafu.ui.util.PreferenceUtils.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Shell;
 
@@ -37,6 +43,7 @@ import com.asakusafw.shafu.core.gradle.RefreshTask;
 import com.asakusafw.shafu.core.util.RunnableBuilder;
 import com.asakusafw.shafu.core.util.RuntimeUtils;
 import com.asakusafw.shafu.internal.ui.Activator;
+import com.asakusafw.shafu.internal.ui.LogUtil;
 import com.asakusafw.shafu.internal.ui.consoles.ShafuConsoleManager;
 import com.asakusafw.shafu.internal.ui.dialogs.ConsoleDialog;
 import com.asakusafw.shafu.internal.ui.preferences.GradleLogLevel;
@@ -51,6 +58,12 @@ import com.asakusafw.shafu.ui.consoles.ShafuConsole;
  * @version 0.4.3
  */
 public final class ShafuUi {
+
+    private static final String PATH_FLAT_ROOT_PROJECT = "master"; //$NON-NLS-1$
+
+    private static final String PATH_GRADLE_PROJECT_SETTINGS = "settings.gradle"; //$NON-NLS-1$
+
+    private static final String KEY_DISTRIBUTION_URL = "distributionUrl"; //$NON-NLS-1$
 
     private ShafuUi() {
         return;
@@ -135,6 +148,8 @@ public final class ShafuUi {
         String gradleVersion = decodeVersion(prefs.getString(KEY_GRADLE_VERSION));
         URI gradleDistribution = decodeUri(prefs.getString(KEY_GRADLE_DISTRIBUTION));
         boolean useHttps = prefs.getBoolean(KEY_USE_HTTPS);
+        boolean useWrapper = prefs.getBoolean(KEY_USE_WRAPPER_CONFIGURATION);
+        List<String> wrapperPaths = decodeToList(prefs.getString(KEY_WRAPPER_CONFIGURATION_PATHS));
 
         if (appearsIn(GradleLogLevel.values(), arguments) == false) {
             context.withGradleArguments(logLevel.getArguments());
@@ -158,10 +173,92 @@ public final class ShafuUi {
         context.setGradleUserHomeDir(gradleUserHome);
         context.setJavaHomeDir(javaHome);
         context.setGradleVersion(gradleVersion);
-        context.setGradleDistribution(gradleDistribution);
         context.setUseHttps(useHttps);
+        if (gradleDistribution != null) {
+            context.setGradleDistribution(gradleDistribution);
+        } else if (useWrapper) {
+            URI wrapperGradleDistribution = findGradleDistributionFromWrapper(projectDirectory, wrapperPaths);
+            context.setGradleDistribution(wrapperGradleDistribution);
+        } else {
+            context.setGradleDistribution(null);
+        }
 
         return context;
+    }
+
+    private static URI findGradleDistributionFromWrapper(File projectDirectory, List<String> wrapperPaths) {
+        URI candidate = findGradleDistributionFromWrapper0(projectDirectory, wrapperPaths);
+        if (candidate != null) {
+            return candidate;
+        }
+        File rootProjectDirectory = findRootProjectDirectory(projectDirectory);
+        if (rootProjectDirectory != null && rootProjectDirectory.equals(projectDirectory) == false) {
+            return findGradleDistributionFromWrapper0(rootProjectDirectory, wrapperPaths);
+        }
+        return null;
+    }
+
+    private static URI findGradleDistributionFromWrapper0(File baseDirectory, List<String> wrapperPaths) {
+        for (String path : wrapperPaths) {
+            String p = path.trim();
+            if (p.isEmpty()) {
+                continue;
+            }
+            File confFile = new File(baseDirectory, p);
+            if (confFile.isFile() == false || confFile.canRead() == false) {
+                continue;
+            }
+            Properties properties = new Properties();
+            try (InputStream input = new FileInputStream(confFile)) {
+                properties.load(input);
+            } catch (IOException e) {
+                LogUtil.log(IStatus.WARNING, MessageFormat.format(
+                        "Invalid Gradle wrapper configuration file: {0}", //$NON-NLS-1$
+                        confFile), e);
+                return null;
+            }
+            URI uri = decodeUri(properties.getProperty(KEY_DISTRIBUTION_URL));
+            if (uri == null) {
+                continue;
+            }
+            LogUtil.debug("found wrapper: {0} (->{1})", confFile, uri); //$NON-NLS-1$
+            return uri;
+        }
+        return null;
+    }
+
+    private static File findRootProjectDirectory(File projectDirectory) {
+        if (hasSettingsFile(projectDirectory)) {
+            LogUtil.debug("found settings.gradle: {0}", projectDirectory); //$NON-NLS-1$
+            return projectDirectory;
+        }
+
+        // https://docs.gradle.org/4.4/userguide/build_lifecycle.html#sec:initialization
+        File parentDirectory = projectDirectory.getParentFile();
+        // It looks in a directory called 'master' which has the same nesting level as the current dir.
+        if (parentDirectory != null && parentDirectory.isDirectory()) {
+            File masterDirectory = new File(parentDirectory, PATH_FLAT_ROOT_PROJECT);
+            if (hasSettingsFile(masterDirectory)) {
+                LogUtil.debug("found master: {0}", masterDirectory); //$NON-NLS-1$
+                return masterDirectory;
+            }
+        }
+
+        // If not found yet, it searches parent directories.
+        for (File dir = parentDirectory; dir != null && dir.isDirectory(); dir = dir.getParentFile()) {
+            if (hasSettingsFile(dir)) {
+                LogUtil.debug("found root project: {0}", dir); //$NON-NLS-1$
+                return dir;
+            }
+        }
+
+        // If not found yet, the build is executed as a single project build.
+        LogUtil.debug("settings.gradle is not found: {0}", projectDirectory); //$NON-NLS-1$
+        return projectDirectory;
+    }
+
+    private static boolean hasSettingsFile(File directory) {
+        return directory.isDirectory() && new File(directory, PATH_GRADLE_PROJECT_SETTINGS).isFile();
     }
 
     private static File computeJavaHome(IProject project, IPreferenceStore prefs) {

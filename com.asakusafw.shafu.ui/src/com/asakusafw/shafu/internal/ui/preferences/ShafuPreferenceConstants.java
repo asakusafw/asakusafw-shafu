@@ -17,13 +17,15 @@ package com.asakusafw.shafu.internal.ui.preferences;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Preferences constants for Shafu UI.
  * @since 0.1.0
- * @version 0.5.2
+ * @version 0.7.0
  */
 public final class ShafuPreferenceConstants {
 
@@ -84,6 +86,20 @@ public final class ShafuPreferenceConstants {
     public static final String KEY_USE_HTTPS = "useHttps"; //$NON-NLS-1$
 
     /**
+     * The property key whether or not use Gradle wrapper configuration for detecting distribution URL.
+     * @since 0.7.0
+     */
+    public static final String KEY_USE_WRAPPER_CONFIGURATION = "useWrapperConf"; //$NON-NLS-1$
+
+    /**
+     * The Gradle wrapper configuration paths (separated by comma) property key.
+     * This property will be activated only if {@link #KEY_USE_WRAPPER_CONFIGURATION} is enabled.
+     * @since 0.7.0
+     * @see #KEY_USE_WRAPPER_CONFIGURATION
+     */
+    public static final String KEY_WRAPPER_CONFIGURATION_PATHS = "wrapperConfPaths"; //$NON-NLS-1$
+
+    /**
      * The Gradle distribution property key.
      */
     public static final String KEY_GRADLE_DISTRIBUTION = "gradleDistribution"; //$NON-NLS-1$
@@ -139,6 +155,23 @@ public final class ShafuPreferenceConstants {
      * @since 0.3.1
      */
     public static final boolean DEFAULT_USE_HTTPS = true;
+
+    /**
+     * The default value of {@link #KEY_USE_WRAPPER_CONFIGURATION}.
+     * @since 0.7.0
+     */
+    public static final boolean DEFAULT_USE_WRAPPER_CONFIGURATION = true;
+
+    /**
+     * The default value of {@link #KEY_WRAPPER_CONFIGURATION_PATHS}.
+     * The Gradle wrapper configuration paths (separated by comma) property key.
+     * This property will be activated only if {@link #KEY_USE_WRAPPER_CONFIGURATION} is enabled.
+     * @since 0.7.0
+     * @see #KEY_USE_WRAPPER_CONFIGURATION
+     */
+    public static final List<String> DEFAULT_WRAPPER_CONFIGURATION_PATHS = Collections.unmodifiableList(Arrays.asList(
+            ".buildtools/gradlew.properties", //$NON-NLS-1$
+            "gradle/wrapper/gradle-wrapper.properties")); //$NON-NLS-1$
 
     /**
      * The Gradle distribution default value.

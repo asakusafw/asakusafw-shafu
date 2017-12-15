@@ -131,6 +131,19 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
         createVersionField(environmentGroup, KEY_GRADLE_VERSION, Messages.ShafuPreferencePage_itemGradleVersion, 10, false);
         createComboField(environmentGroup, KEY_NETWORK_MODE, GradleNetworkMode.values(), Messages.ShafuPreferencePage_itemNetworkMode);
         createDirectoryField(environmentGroup, KEY_GRADLE_USER_HOME, 2, Messages.ShafuPreferencePage_itemGradleUserHome, false);
+
+        Group wrapperGroup = new Group(pane, SWT.NONE);
+        wrapperGroup.setText(Messages.ShafuPreferencePage_groupWrapper);
+        wrapperGroup.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .grab(true, false)
+                .create());
+        wrapperGroup.setLayout(new GridLayout(2, false));
+        createCheckboxField(wrapperGroup, KEY_USE_WRAPPER_CONFIGURATION, 2,
+                Messages.ShafuPreferencePage_itemUseWrapperConfiguration);
+        createCommaListField(wrapperGroup, KEY_WRAPPER_CONFIGURATION_PATHS, 2,
+                Messages.ShafuPreferencePage_itemWrapperConfigurationPaths,
+                Messages.ShafuPreferencePage_hintWrapperConfigurationPaths);
     }
 
     private void createProjectTab(Composite pane) {
@@ -467,6 +480,98 @@ public class ShafuPreferencePage extends FieldPreferencePage implements IWorkben
         });
     }
 
+    private void createCheckboxField(Composite parent, final String key, int span, final String title) {
+        final Button button = new Button(parent, SWT.CHECK);
+        button.setText(title);
+        button.setLayoutData(GridDataFactory.swtDefaults()
+                .span(span, 1)
+                .align(SWT.FILL, SWT.CENTER)
+                .grab(true, false)
+                .indent(BasicField.getDecorationWidth(), 0)
+                .create());
+        registerField(new PreferenceField(key, button) {
+            @Override
+            public void refresh() {
+                String current = getPreferenceValue(key);
+                boolean value = current.equals("true"); //$NON-NLS-1$
+                button.setSelection(value);
+            }
+        });
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                setPreferenceValue(key, String.valueOf(button.getSelection()));
+            }
+        });
+    }
+
+    private void createCommaListField(
+            Composite parent, final String key, int span, final String title, final String hint) {
+        Composite pane = new Composite(parent, SWT.NONE);
+        pane.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.BEGINNING)
+                .grab(true, false)
+                .span(span, 1)
+                .create());
+
+        GridLayout layout = new GridLayout(1, false);
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.verticalSpacing = 0;
+        pane.setLayout(layout);
+
+        Label label = new Label(pane, SWT.NONE);
+        label.setText(title + ':');
+        label.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.END)
+                .grab(true, false)
+                .create());
+
+        final Text text = new Text(pane, SWT.BORDER);
+        text.setLayoutData(GridDataFactory.swtDefaults()
+                .align(SWT.FILL, SWT.END)
+                .grab(true, false)
+                .create());
+
+        registerField(new PreferenceField(key, text) {
+            @Override
+            public void refresh() {
+                String current = getPreferenceValue(key);
+                List<String> values = decodeToList(current);
+                StringBuilder buf = new StringBuilder();
+                for (String s : values) {
+                    if (buf.length() != 0) {
+                        buf.append(", "); //$NON-NLS-1$
+                    }
+                    buf.append(s);
+                }
+                text.setText(buf.toString());
+            }
+            @Override
+            protected IStatus getDefaultStatus() {
+                if (hint == null) {
+                    return Status.OK_STATUS;
+                } else {
+                    return new Status(IStatus.INFO, Activator.PLUGIN_ID, hint);
+                }
+            }
+        });
+        text.addModifyListener(new ModifyListener() {
+            @Override
+            public void modifyText(ModifyEvent event) {
+                String value = text.getText();
+                List<String> elements = new ArrayList<>();
+                for (String s : value.split(",")) { //$NON-NLS-1$
+                    String element = s.trim();
+                    if (element.isEmpty()) {
+                        continue;
+                    }
+                    elements.add(element);
+                }
+                setPreferenceValue(key, encodeList(elements));
+            }
+        });
+    }
     private static class PropertiesContentProvider implements IStructuredContentProvider {
 
         PropertiesContentProvider() {
