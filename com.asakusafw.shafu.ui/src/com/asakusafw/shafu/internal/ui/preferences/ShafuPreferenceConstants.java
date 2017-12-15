@@ -144,7 +144,7 @@ public final class ShafuPreferenceConstants {
      * The Gradle version default value ({@value}).
      * @since 0.2.7
      */
-    public static final String DEFAULT_GRADLE_VERSION = "3.1"; //$NON-NLS-1$
+    public static final String DEFAULT_GRADLE_VERSION = "4.3.1"; //$NON-NLS-1$
 
     /**
      * The default value of {@link #KEY_USE_HTTPS}.
