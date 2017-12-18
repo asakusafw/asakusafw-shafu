@@ -266,7 +266,8 @@ public final class ShafuUi {
         if (javaHome != null) {
             return javaHome;
         }
-        File javaHomeCandidate = RuntimeUtils.getJavaHome(project);
+        boolean useProjectJavaHome = prefs.getBoolean(KEY_USE_PROJECT_JAVA_HOME);
+        File javaHomeCandidate = useProjectJavaHome ? RuntimeUtils.getJavaHome(project) : RuntimeUtils.getJavaHome();
         if (javaHomeCandidate != null && RuntimeUtils.isJavaDevelopmentKitLike(javaHomeCandidate)) {
             return javaHomeCandidate;
         }

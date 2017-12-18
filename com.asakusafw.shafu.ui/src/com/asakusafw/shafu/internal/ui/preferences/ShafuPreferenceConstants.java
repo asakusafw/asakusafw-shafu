@@ -75,6 +75,12 @@ public final class ShafuPreferenceConstants {
     public static final String KEY_JAVA_HOME = "javaHome"; //$NON-NLS-1$
 
     /**
+     * The property key whether or not detect Java home from project runtime environment.
+     * @since 0.7.0
+     */
+    public static final String KEY_USE_PROJECT_JAVA_HOME = "useProjectJavaHome"; //$NON-NLS-1$
+
+    /**
      * The Gradle distribution property key.
      */
     public static final String KEY_GRADLE_VERSION = "gradleVersion"; //$NON-NLS-1$
@@ -139,6 +145,12 @@ public final class ShafuPreferenceConstants {
      * The Java home default value.
      */
     public static final File DEFAULT_JAVA_HOME = null;
+
+    /**
+     * The default value of {@link #KEY_USE_PROJECT_JAVA_HOME}.
+     * @since 0.7.0
+     */
+    public static final boolean DEFAULT_USE_PROJECT_JAVA_HOME = true;
 
     /**
      * The Gradle version default value ({@value}).

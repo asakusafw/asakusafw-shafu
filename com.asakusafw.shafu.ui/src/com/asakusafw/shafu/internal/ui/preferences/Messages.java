@@ -46,6 +46,7 @@ final class Messages extends NLS {
     public static String ShafuPreferencePage_itemProjectProperties;
     public static String ShafuPreferencePage_itemStackTrace;
     public static String ShafuPreferencePage_itemSystemProperties;
+    public static String ShafuPreferencePage_itemUseProjectJavaHome;
     public static String ShafuPreferencePage_itemUseWrapperConfiguration;
     public static String ShafuPreferencePage_itemWrapperConfigurationPaths;
     public static String ShafuPreferencePage_propertiesAddLabel;
