@@ -87,7 +87,7 @@ For security reasons, this cannot filter for itself.
          <meta.section type="copyright"/>
       </appinfo>
       <documentation>
-         Copyright 2013-2017 Asakusa Framework Development Team.
+         Copyright 2013-2018 Asakusa Framework Development Team.
       </documentation>
    </annotation>
 
