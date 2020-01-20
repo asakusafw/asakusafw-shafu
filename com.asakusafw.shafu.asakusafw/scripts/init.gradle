@@ -94,4 +94,18 @@ allprojects { Project project ->
             }
         }
     }
+
+    // replace maven repository url that use http with https
+    def targetHosts = [
+        'repo1.maven.org',
+        'repo.maven.apache.org',
+        'asakusafw.s3.amazonaws.com'
+    ]
+    project.repositories.withType(MavenArtifactRepository) { repository ->
+        if ( repository.url.scheme == 'http' && targetHosts.contains(repository.url.host) ) {
+            URI newUrl = new URI("https", repository.url.authority, repository.url.path, repository.url.query, repository.url.fragment)
+            logger.info("Replace repository url: ${repository.url} -> ${newUrl}")
+            repository.url = newUrl
+        }
+    }
 }
