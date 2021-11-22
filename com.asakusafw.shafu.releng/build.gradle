@@ -27,7 +27,7 @@ def targetFeatures = [
 def qualifier = System.getProperty('qualifier', "N${new Date().format('yyyyMMddHHmmss')}")
 def targetDropinName = 'jinrikisha'
 
-def eclipseUrl = System.getProperty('eclipse.download', 'http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/kepler/SR2/eclipse-standard-kepler-SR2-win32.zip')
+def eclipseUrl = System.getProperty('eclipse.download', 'https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/kepler/SR2/eclipse-standard-kepler-SR2-win32.zip')
 
 def compilerCompliance = '1.7'
 def customBootClasspath = null
